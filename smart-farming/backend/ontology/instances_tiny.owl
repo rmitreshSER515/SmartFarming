@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:sf="http://example.org/smart-farming#"
+>
+  <rdf:Description rdf:about="http://example.org/smart-farming#YieldRecord_T4_R1_2024_3">
+    <rdf:type rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R1"/>
+    <sf:forCrop rdf:resource="http://example.org/smart-farming#Glycine_max_L"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:yield_kg_per_ha rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1775.8</sf:yield_kg_per_ha>
+    <sf:usesSoilMeasurement rdf:resource="http://example.org/smart-farming#SoilMeasurement_T4_R1_2024_3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#SoilMeasurement_T4_R2_2024_2">
+    <rdf:type rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R2"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:soil_pH rdf:datatype="http://www.w3.org/2001/XMLSchema#float">6.361111111111111</sf:soil_pH>
+    <sf:soil_P_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">15.069444444444445</sf:soil_P_mg_per_kg>
+    <sf:soil_K_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">83.83333333333333</sf:soil_K_mg_per_kg>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#YieldRecord_T4_R3_2024_1">
+    <rdf:type rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R3"/>
+    <sf:forCrop rdf:resource="http://example.org/smart-farming#Glycine_max_L"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:yield_kg_per_ha rdf:datatype="http://www.w3.org/2001/XMLSchema#float">2025.6</sf:yield_kg_per_ha>
+    <sf:usesSoilMeasurement rdf:resource="http://example.org/smart-farming#SoilMeasurement_T4_R3_2024_1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#YieldRecord_T4_R5_2024_4">
+    <rdf:type rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R5"/>
+    <sf:forCrop rdf:resource="http://example.org/smart-farming#Glycine_max_L"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:yield_kg_per_ha rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1511.8</sf:yield_kg_per_ha>
+    <sf:usesSoilMeasurement rdf:resource="http://example.org/smart-farming#SoilMeasurement_T4_R5_2024_4"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#SoilMeasurement_T4_R1_2024_3">
+    <rdf:type rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R1"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:soil_pH rdf:datatype="http://www.w3.org/2001/XMLSchema#float">6.361111111111111</sf:soil_pH>
+    <sf:soil_P_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">15.069444444444445</sf:soil_P_mg_per_kg>
+    <sf:soil_K_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">83.83333333333333</sf:soil_K_mg_per_kg>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#Glycine_max_L">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Crop"/>
+    <sf:hasCropName rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Glycine max L.</sf:hasCropName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#SoilMeasurement_T4_R4_2024_0">
+    <rdf:type rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R4"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:soil_pH rdf:datatype="http://www.w3.org/2001/XMLSchema#float">6.361111111111111</sf:soil_pH>
+    <sf:soil_P_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">15.069444444444445</sf:soil_P_mg_per_kg>
+    <sf:soil_K_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">83.83333333333333</sf:soil_K_mg_per_kg>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#SoilMeasurement_T4_R5_2024_4">
+    <rdf:type rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R5"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:soil_pH rdf:datatype="http://www.w3.org/2001/XMLSchema#float">6.361111111111111</sf:soil_pH>
+    <sf:soil_P_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">15.069444444444445</sf:soil_P_mg_per_kg>
+    <sf:soil_K_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">83.83333333333333</sf:soil_K_mg_per_kg>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#T4_R4">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Plot"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#SoilMeasurement_T4_R3_2024_1">
+    <rdf:type rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R3"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:soil_pH rdf:datatype="http://www.w3.org/2001/XMLSchema#float">6.361111111111111</sf:soil_pH>
+    <sf:soil_P_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">15.069444444444445</sf:soil_P_mg_per_kg>
+    <sf:soil_K_mg_per_kg rdf:datatype="http://www.w3.org/2001/XMLSchema#float">83.83333333333333</sf:soil_K_mg_per_kg>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#YieldRecord_T4_R2_2024_2">
+    <rdf:type rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R2"/>
+    <sf:forCrop rdf:resource="http://example.org/smart-farming#Glycine_max_L"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:yield_kg_per_ha rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1459.3</sf:yield_kg_per_ha>
+    <sf:usesSoilMeasurement rdf:resource="http://example.org/smart-farming#SoilMeasurement_T4_R2_2024_2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#YieldRecord_T4_R4_2024_0">
+    <rdf:type rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+    <sf:aboutPlot rdf:resource="http://example.org/smart-farming#T4_R4"/>
+    <sf:forCrop rdf:resource="http://example.org/smart-farming#Glycine_max_L"/>
+    <sf:hasYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2024</sf:hasYear>
+    <sf:yield_kg_per_ha rdf:datatype="http://www.w3.org/2001/XMLSchema#float">2074.4</sf:yield_kg_per_ha>
+    <sf:usesSoilMeasurement rdf:resource="http://example.org/smart-farming#SoilMeasurement_T4_R4_2024_0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#T4_R1">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Plot"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#T4_R2">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Plot"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#T4_R5">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Plot"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/smart-farming#T4_R3">
+    <rdf:type rdf:resource="http://example.org/smart-farming#Plot"/>
+  </rdf:Description>
+</rdf:RDF>

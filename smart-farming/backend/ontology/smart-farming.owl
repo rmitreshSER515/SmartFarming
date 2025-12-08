@@ -175,6 +175,28 @@
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
   </owl:DatatypeProperty>
 
+  <owl:DatatypeProperty rdf:about="#hasCropName">
+    <rdfs:label>hasCropName</rdfs:label>
+    <rdfs:comment>
+      Human-readable crop name (e.g., "Glycine max L."), used for SWRL reasoning.
+    </rdfs:comment>
+    <rdfs:domain rdf:resource="#Crop"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="#soil_OM_pct">
+    <rdfs:label>soil_OM_pct</rdfs:label>
+    <rdfs:comment>Soil organic matter percentage.</rdfs:comment>
+    <rdfs:domain rdf:resource="#SoilMeasurement"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="#soil_CEC">
+    <rdfs:label>soil_CEC</rdfs:label>
+    <rdfs:comment>Soil cation exchange capacity (meq/100g).</rdfs:comment>
+    <rdfs:domain rdf:resource="#SoilMeasurement"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+  </owl:DatatypeProperty>
 
   <!-- ========================================================= -->
   <!--  Recommendation core (shared by all three use cases)      -->
