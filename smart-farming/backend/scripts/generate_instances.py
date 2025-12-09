@@ -1,89 +1,272 @@
-# backend/scripts/generate_instances.py
-import pandas as pd
-from rdflib import Graph, Namespace, Literal, RDF, URIRef
-from rdflib.namespace import XSD
-import os
+#!/usr/bin/env python3
+"""
+Generate instances (TTL) from the smart-farming OWL schema and kbs_2024.csv.
 
-BASE = os.path.dirname(os.path.dirname(__file__))
-CSV_PATH = os.path.join(BASE, "data", "kbs_2024.csv")
-OUT_TTL = os.path.join(BASE, "ontology", "instances.ttl")
-NS = "http://example.org/smart-farming#"
-sf = Namespace(NS)
+Directory layout (relative to this file):
+- ../ontology/smart-farming-backup.owl  (input ontology)
+- ../data/kbs_2024.csv                  (input data)
+- ../ontology/instances.ttl             (output with instances)
 
-df = pd.read_csv(CSV_PATH, sep=",", dtype=str).fillna("")
+Run from the project root or from inside venv, e.g.:
+    (venv) python scripts/generate_instances.py
+"""
+
+import csv
+import re
+from pathlib import Path
+
+from rdflib import Graph, Namespace, URIRef, Literal
+from rdflib.namespace import RDF, RDFS, XSD
+
+
+# -------------------------------------------------------------------
+# Paths & config
+# -------------------------------------------------------------------
+
+# this file: backend/scripts/generate_instances.py
+SCRIPTS_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPTS_DIR.parent  # ../backend
+
+OWL_PATH = PROJECT_ROOT / "ontology" / "smart-farming-backup.owl"
+CSV_PATH = PROJECT_ROOT / "data" / "kbs_2024.csv"
+OUTPUT_TTL = PROJECT_ROOT / "ontology" / "instances.ttl"
+
+BASE_URI = "http://example.org/smart-farming#"
+SF = Namespace(BASE_URI)
+
+
+# -------------------------------------------------------------------
+# Helpers
+# -------------------------------------------------------------------
+
+def slugify(value: str) -> str:
+    """Generate a safe URI fragment: lowercase, alnum + underscore."""
+    value = (value or "").strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "_", value)
+    value = re.sub(r"_+", "_", value).strip("_")
+    return value or "unnamed"
+
+
+def to_float(val: str):
+    if val is None:
+        return None
+    val = val.strip()
+    if not val:
+        return None
+    try:
+        return float(val)
+    except ValueError:
+        return None
+
+
+def to_bool_from_01(val: str):
+    if val is None:
+        return None
+    val = val.strip()
+    if not val:
+        return None
+    if val in {"1", "true", "True"}:
+        return True
+    if val in {"0", "false", "False"}:
+        return False
+    return None
+
+
+# -------------------------------------------------------------------
+# Load ontology
+# -------------------------------------------------------------------
+
+if not OWL_PATH.exists():
+    raise FileNotFoundError(f"OWL file not found at {OWL_PATH}")
+
+if not CSV_PATH.exists():
+    raise FileNotFoundError(f"CSV file not found at {CSV_PATH}")
 
 g = Graph()
-g.bind("sf", sf)
-g.bind("xsd", XSD)
+g.parse(OWL_PATH, format="xml")
 
-for idx, row in df.iterrows():
-    year = row["Year"].strip()
-    plot = row["PlotID"].strip().replace(" ", "_")
-    rec_id = f"YieldRecord_{plot}_{year}_{idx}"
-    rec = URIRef(NS + rec_id)
-    g.add((rec, RDF.type, sf.YieldRecord))
+# Bind prefixes for nicer TTL
+g.bind("sf", SF)
+g.bind("", SF)
 
-    plot_uri = URIRef(NS + plot)
-    g.add((plot_uri, RDF.type, sf.Plot))
-    g.add((rec, sf.aboutPlot, plot_uri))
 
-    crop_name = row["Crop"].strip() or "UnknownCrop"
-    crop_label = crop_name.replace(" ", "_")
-    crop_uri = URIRef(NS + crop_label)
-    g.add((crop_uri, RDF.type, sf.Crop))
-    # Add a data property with crop name for SWRL string checks
-    g.add((crop_uri, sf.hasCropName, Literal(crop_name)))
+# -------------------------------------------------------------------
+# Registries to avoid duplicate individuals
+# -------------------------------------------------------------------
 
-    g.add((rec, sf.forCrop, crop_uri))
+plots = {}       # PlotID -> URIRef
+crops = {}       # crop name -> URIRef
+treatments = {}  # treatment code -> URIRef
 
-    # year
-    g.add((rec, sf.hasYear, Literal(year, datatype=XSD.gYear)))
 
-    # yield
-    yld = row.get("Yield_kg_ha", "")
-    if yld != "":
-        try:
-            g.add((rec, sf.yield_kg_per_ha, Literal(float(yld), datatype=XSD.float)))
-        except (ValueError, TypeError):
-            g.add((rec, sf.yield_kg_per_ha, Literal(yld)))
+def get_plot(plot_id: str) -> URIRef:
+    """Return (and create if needed) a Plot individual for PlotID."""
+    if plot_id in plots:
+        return plots[plot_id]
 
-    # soil measurement
-    soil_id = f"SoilMeasurement_{plot}_{year}_{idx}"
-    soil = URIRef(NS + soil_id)
-    g.add((soil, RDF.type, sf.SoilMeasurement))
-    g.add((soil, sf.aboutPlot, plot_uri))
-    g.add((soil, sf.hasYear, Literal(year, datatype=XSD.gYear)))
-    for col, pred in [
-        ("Soil_pH", "soil_pH"),
-        ("P", "soil_P_mg_per_kg"),
-        ("K", "soil_K_mg_per_kg"),
-        ("Ca", "soil_Ca_mg_per_kg"),
-        ("Mg", "soil_Mg_mg_per_kg"),
-        ("CEC", "soil_CEC"),
-        ("OM", "soil_OM_pct")
-    ]:
-        if col in row and row[col] != "":
-            try:
-                g.add((soil, sf[pred], Literal(float(row[col]), datatype=XSD.float)))
-            except (ValueError, TypeError):
-                g.add((soil, sf[pred], Literal(row[col])))
+    # PlotID like "T4_R4" is already a valid fragment, so we can use it as-is
+    uri = SF[plot_id]
+    g.add((uri, RDF.type, SF.Plot))
+    # if hasPlotID exists in ontology, this will align nicely
+    g.add((uri, SF.hasPlotID, Literal(plot_id, datatype=XSD.string)))
+    plots[plot_id] = uri
+    return uri
 
-    g.add((rec, sf.usesSoilMeasurement, soil))
 
-    # weather summary
-    weather_id = f"Weather_{plot}_{year}_{idx}"
-    w = URIRef(NS + weather_id)
-    g.add((w, RDF.type, sf.WeatherSummary))
-    g.add((w, sf.aboutPlot, plot_uri))
-    if "TotalPrecip_mm" in row and row["TotalPrecip_mm"] != "":
-        try:
-            g.add((w, sf.forecastRainfallAmount_mm, Literal(float(row[
-                "TotalPrecip_mm"]), datatype=XSD.float)))
-        except (ValueError, TypeError):
-            g.add((w, sf.forecastRainfallAmount_mm, Literal(row[
-                "TotalPrecip_mm"])))
-    g.add((rec, sf.usesWeatherSummary, w))
+def get_crop(crop_name: str) -> URIRef:
+    """Return (and create if needed) a Crop individual based on crop name."""
+    if crop_name in crops:
+        return crops[crop_name]
 
-# serialize to TTL
-g.serialize(destination=OUT_TTL, format="turtle")
-print("Wrote:", OUT_TTL)
+    slug = "crop_" + slugify(crop_name)
+    uri = SF[slug]
+    g.add((uri, RDF.type, SF.Crop))
+    g.add((uri, SF.hasCropName, Literal(crop_name, datatype=XSD.string)))
+    crops[crop_name] = uri
+    return uri
+
+
+def get_treatment(treatment_code: str) -> URIRef:
+    """Return (and create if needed) a Treatment individual based on code."""
+    if treatment_code in treatments:
+        return treatments[treatment_code]
+
+    slug = "treatment_" + slugify(treatment_code)
+    uri = SF[slug]
+    g.add((uri, RDF.type, SF.Treatment))
+    g.add((uri, RDFS.label, Literal(treatment_code, datatype=XSD.string)))
+    treatments[treatment_code] = uri
+    return uri
+
+
+# -------------------------------------------------------------------
+# Process CSV -> instances
+# -------------------------------------------------------------------
+
+with CSV_PATH.open(newline="", encoding="utf-8") as f:
+    # If your file is tab-separated, change delimiter to "\t"
+    reader = csv.DictReader(f)  # default delimiter=","
+    for idx, row in enumerate(reader, start=1):
+        # --- basic fields ---
+        year = (row.get("Year") or "").strip()
+        plot_id = (row.get("PlotID") or "").strip()
+        treatment_code = (row.get("Treatment") or "").strip()
+        replicate = (row.get("Replicate") or "").strip()
+        crop_name = (row.get("Crop") or "").strip()
+
+        if not year or not plot_id:
+            # skip malformed lines
+            print(f"Skipping row {idx}: missing Year or PlotID")
+            continue
+
+        # Shared entities
+        plot_uri = get_plot(plot_id)
+        crop_uri = get_crop(crop_name) if crop_name else None
+        treatment_uri = get_treatment(treatment_code) if treatment_code else None
+
+        # ----------------------------------------------------------------
+        # YieldRecord individual
+        # ----------------------------------------------------------------
+        yr_slug = f"yield_{year}_{plot_id}_{replicate or 'no_rep'}"
+        yr_uri = SF[slugify(yr_slug)]
+
+        g.add((yr_uri, RDF.type, SF.YieldRecord))
+        g.add((yr_uri, SF.aboutPlot, plot_uri))
+        if crop_uri:
+            g.add((yr_uri, SF.forCrop, crop_uri))
+        if treatment_uri:
+            g.add((yr_uri, SF.withTreatment, treatment_uri))
+        if year:
+            g.add((yr_uri, SF.hasYear, Literal(year, datatype=XSD.gYear)))
+        if replicate:
+            g.add((yr_uri, SF.hasReplicate, Literal(replicate, datatype=XSD.string)))
+
+        yld = to_float(row.get("Yield_kg_ha"))
+        if yld is not None:
+            g.add((yr_uri, SF.yield_kg_per_ha, Literal(yld, datatype=XSD.float)))
+
+        # ----------------------------------------------------------------
+        # SoilMeasurement individual
+        # ----------------------------------------------------------------
+        sm_slug = f"soil_{year}_{plot_id}_{replicate or 'no_rep'}"
+        sm_uri = SF[slugify(sm_slug)]
+
+        g.add((sm_uri, RDF.type, SF.SoilMeasurement))
+        g.add((sm_uri, SF.aboutPlot, plot_uri))
+        if crop_uri:
+            g.add((sm_uri, SF.forCrop, crop_uri))
+        if year:
+            g.add((sm_uri, SF.hasYear, Literal(year, datatype=XSD.gYear)))
+        if replicate:
+            g.add((sm_uri, SF.hasReplicate, Literal(replicate, datatype=XSD.string)))
+
+        # Soil properties
+        val = to_float(row.get("Soil_pH"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_pH, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("P"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_P_mg_per_kg, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("K"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_K_mg_per_kg, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("Ca"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_Ca_mg_per_kg, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("Mg"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_Mg_mg_per_kg, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("CEC"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_CEC, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("OM"))
+        if val is not None:
+            g.add((sm_uri, SF.soil_OM_pct, Literal(val, datatype=XSD.float)))
+
+        sm_flag = to_bool_from_01(row.get("Soil_Measured"))
+        if sm_flag is not None:
+            g.add((sm_uri, SF.soilMeasured, Literal(sm_flag, datatype=XSD.boolean)))
+
+        # ----------------------------------------------------------------
+        # WeatherSummary individual
+        # ----------------------------------------------------------------
+        ws_slug = f"weather_{year}_{plot_id}_{replicate or 'no_rep'}"
+        ws_uri = SF[slugify(ws_slug)]
+
+        g.add((ws_uri, RDF.type, SF.WeatherSummary))
+        g.add((ws_uri, SF.aboutPlot, plot_uri))
+        if crop_uri:
+            g.add((ws_uri, SF.forCrop, crop_uri))
+        if year:
+            g.add((ws_uri, SF.hasYear, Literal(year, datatype=XSD.gYear)))
+        if replicate:
+            g.add((ws_uri, SF.hasReplicate, Literal(replicate, datatype=XSD.string)))
+
+        val = to_float(row.get("TotalPrecip_mm"))
+        if val is not None:
+            g.add((ws_uri, SF.totalPrecip_mm, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("AvgTmax_C"))
+        if val is not None:
+            g.add((ws_uri, SF.avgTmax_C, Literal(val, datatype=XSD.float)))
+
+        val = to_float(row.get("AvgTmin_C"))
+        if val is not None:
+            g.add((ws_uri, SF.avgTmin_C, Literal(val, datatype=XSD.float)))
+
+        # Optional: progress logging
+        # print(f"Processed row {idx}: {year} {plot_id} {replicate}")
+
+# -------------------------------------------------------------------
+# Serialize
+# -------------------------------------------------------------------
+
+OUTPUT_TTL.parent.mkdir(parents=True, exist_ok=True)
+g.serialize(destination=str(OUTPUT_TTL), format="turtle")
+print(f"Wrote instances to {OUTPUT_TTL}")

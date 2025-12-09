@@ -1,0 +1,942 @@
+@prefix : <http://example.org/smart-farming#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@base <http://example.org/smart-farming#> .
+
+<http://example.org/smart-farming> rdf:type owl:Ontology ;
+                                    owl:imports <http://example.org/smart-farming> ;
+                                    rdfs:label "Smart Farming – Crop Rotation, Fertilizer, Pest Risk Ontology" .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled
+<http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#gYear
+xsd:gYear rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/smart-farming#aboutPlot
+:aboutPlot rdf:type owl:ObjectProperty ;
+           rdfs:domain :Record ;
+           rdfs:range :Plot ;
+           rdfs:comment "Plot to which the record refers." ;
+           rdfs:label "aboutPlot" .
+
+
+###  http://example.org/smart-farming#basedOnPestRiskAssessment
+:basedOnPestRiskAssessment rdf:type owl:ObjectProperty ;
+                           rdfs:domain :PestManagementRecommendation ;
+                           rdfs:range :PestRiskAssessment ;
+                           rdfs:comment """
+      PestRiskAssessment used as input when computing a pest management recommendation.
+    """ ;
+                           rdfs:label "basedOnPestRiskAssessment" .
+
+
+###  http://example.org/smart-farming#createsFertilizerApplication
+:createsFertilizerApplication rdf:type owl:ObjectProperty ;
+                              rdfs:domain :FertilizerRecommendation ;
+                              rdfs:range :FertilizerApplication ;
+                              rdfs:comment """
+      Links a fertilizer recommendation to a corresponding planned application event.
+    """ ;
+                              rdfs:label "createsFertilizerApplication" .
+
+
+###  http://example.org/smart-farming#forCrop
+:forCrop rdf:type owl:ObjectProperty ;
+         rdfs:domain :Record ;
+         rdfs:range :Crop ;
+         rdfs:comment "Crop to which the record refers." ;
+         rdfs:label "forCrop" .
+
+
+###  http://example.org/smart-farming#hasPestInfestation
+:hasPestInfestation rdf:type owl:ObjectProperty ;
+                    rdfs:domain :Plot ;
+                    rdfs:range :PestInfestationEvent ;
+                    rdfs:comment "A past pest infestation event on a plot." ;
+                    rdfs:label "hasPestInfestation" .
+
+
+###  http://example.org/smart-farming#hasPestRiskAssessment
+:hasPestRiskAssessment rdf:type owl:ObjectProperty ;
+                       rdfs:domain :Plot ;
+                       rdfs:range :PestRiskAssessment ;
+                       rdfs:comment "Pest risk assessment associated with a plot." ;
+                       rdfs:label "hasPestRiskAssessment" .
+
+
+###  http://example.org/smart-farming#infestationOfPest
+:infestationOfPest rdf:type owl:ObjectProperty ;
+                   rdfs:domain :PestInfestationEvent ;
+                   rdfs:range :Pest ;
+                   rdfs:comment "The pest involved in a pest infestation event." ;
+                   rdfs:label "infestationOfPest" .
+
+
+###  http://example.org/smart-farming#observesProperty
+:observesProperty rdf:type owl:ObjectProperty ;
+                  rdfs:domain :Record ;
+                  rdfs:range sosa:ObservableProperty ;
+                  rdfs:comment "Observable property measured in this record." ;
+                  rdfs:label "observesProperty" .
+
+
+###  http://example.org/smart-farming#recommendsCrop
+:recommendsCrop rdf:type owl:ObjectProperty ;
+                rdfs:domain :Recommendation ;
+                rdfs:range :Crop ;
+                rdfs:comment "The crop recommended as the next crop in the rotation." ;
+                rdfs:label "recommendsCrop" .
+
+
+###  http://example.org/smart-farming#recommendsFertilizerProduct
+:recommendsFertilizerProduct rdf:type owl:ObjectProperty ;
+                             rdfs:domain :FertilizerRecommendation ;
+                             rdfs:range :FertilizerProduct ;
+                             rdfs:comment """
+      Fertilizer product recommended to be applied.
+    """ ;
+                             rdfs:label "recommendsFertilizerProduct" .
+
+
+###  http://example.org/smart-farming#riskForPest
+:riskForPest rdf:type owl:ObjectProperty ;
+             rdfs:domain :PestRiskAssessment ;
+             rdfs:range :Pest ;
+             rdfs:comment "The pest for which a risk assessment is made." ;
+             rdfs:label "riskForPest" .
+
+
+###  http://example.org/smart-farming#targetsPest
+:targetsPest rdf:type owl:ObjectProperty ;
+             rdfs:domain :PestManagementRecommendation ;
+             rdfs:range :Pest ;
+             rdfs:comment "The pest whose recurrence the recommendation aims to reduce." ;
+             rdfs:label "targetsPest" .
+
+
+###  http://example.org/smart-farming#targetsPlot
+:targetsPlot rdf:type owl:ObjectProperty ;
+             rdfs:domain :Recommendation ;
+             rdfs:range :Plot ;
+             rdfs:comment "Plot for which a recommendation is issued." ;
+             rdfs:label "targetsPlot" .
+
+
+###  http://example.org/smart-farming#usesRainfallForecast
+:usesRainfallForecast rdf:type owl:ObjectProperty ;
+                      rdfs:domain :Recommendation ;
+                      rdfs:range :RainfallForecast ;
+                      rdfs:comment """
+      RainfallForecast used as input when computing a recommendation.
+    """ ;
+                      rdfs:label "usesRainfallForecast" .
+
+
+###  http://example.org/smart-farming#usesSoilMeasurement
+:usesSoilMeasurement rdf:type owl:ObjectProperty ;
+                     rdfs:domain :Recommendation ;
+                     rdfs:range :SoilMeasurement ;
+                     rdfs:comment """
+      SoilMeasurement record used as input when computing a recommendation.
+    """ ;
+                     rdfs:label "usesSoilMeasurement" .
+
+
+###  http://example.org/smart-farming#usesWeatherSummary
+:usesWeatherSummary rdf:type owl:ObjectProperty ;
+                    rdfs:domain :Recommendation ;
+                    rdfs:range :WeatherSummary ;
+                    rdfs:comment """
+      WeatherSummary record used as input when computing a recommendation.
+    """ ;
+                    rdfs:label "usesWeatherSummary" .
+
+
+###  http://example.org/smart-farming#usesYieldRecord
+:usesYieldRecord rdf:type owl:ObjectProperty ;
+                 rdfs:domain :Recommendation ;
+                 rdfs:range :YieldRecord ;
+                 rdfs:comment """
+      YieldRecord used as input when computing a recommendation.
+    """ ;
+                 rdfs:label "usesYieldRecord" .
+
+
+###  http://example.org/smart-farming#withTreatment
+:withTreatment rdf:type owl:ObjectProperty ;
+               rdfs:domain :YieldRecord ;
+               rdfs:range :Treatment ;
+               rdfs:comment "Treatment applied for this yield record." ;
+               rdfs:label "withTreatment" .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/smart-farming#forYear
+:forYear rdf:type owl:DatatypeProperty ;
+         rdfs:domain :Recommendation ;
+         rdfs:range xsd:gYear ;
+         rdfs:comment "Year for which the recommendation is intended." ;
+         rdfs:label "forYear" .
+
+
+###  http://example.org/smart-farming#forecastEndTime
+:forecastEndTime rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :RainfallForecast ;
+                 rdfs:range xsd:dateTime ;
+                 rdfs:label "forecastEndTime" .
+
+
+###  http://example.org/smart-farming#forecastRainfallAmount_mm
+:forecastRainfallAmount_mm rdf:type owl:DatatypeProperty ;
+                           rdfs:domain :RainfallForecast ;
+                           rdfs:range xsd:float ;
+                           rdfs:comment """
+      Total rainfall forecasted for the period, in millimeters.
+    """ ;
+                           rdfs:label "forecastRainfallAmount_mm" .
+
+
+###  http://example.org/smart-farming#forecastStartTime
+:forecastStartTime rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :RainfallForecast ;
+                   rdfs:range xsd:dateTime ;
+                   rdfs:label "forecastStartTime" .
+
+
+###  http://example.org/smart-farming#hasCropName
+:hasCropName rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Crop ;
+             rdfs:range xsd:string ;
+             rdfs:comment """
+      Human-readable crop name (e.g., \"Glycine max L.\"), used for SWRL reasoning.
+    """ ;
+             rdfs:label "hasCropName" .
+
+
+###  http://example.org/smart-farming#hasJustificationText
+:hasJustificationText rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :Recommendation ;
+                      rdfs:range xsd:string ;
+                      rdfs:comment """
+      Human-readable explanation of why this recommendation was generated.
+    """ ;
+                      rdfs:label "hasJustificationText" .
+
+
+###  http://example.org/smart-farming#hasRecommendationScore
+:hasRecommendationScore rdf:type owl:DatatypeProperty ;
+                        rdfs:domain :Recommendation ;
+                        rdfs:range xsd:decimal ;
+                        rdfs:comment """
+      Numeric score representing confidence or utility of the recommendation.
+    """ ;
+                        rdfs:label "hasRecommendationScore" .
+
+
+###  http://example.org/smart-farming#hasRiskLevel
+:hasRiskLevel rdf:type owl:DatatypeProperty ;
+              rdfs:domain :PestRiskAssessment ;
+              rdfs:range xsd:string ;
+              rdfs:comment """
+      Categorical pest risk level, e.g., \"low\", \"medium\", \"high\".
+    """ ;
+              rdfs:label "hasRiskLevel" .
+
+
+###  http://example.org/smart-farming#hasRiskScore
+:hasRiskScore rdf:type owl:DatatypeProperty ;
+              rdfs:domain :PestRiskAssessment ;
+              rdfs:range xsd:decimal ;
+              rdfs:comment "Numeric pest risk score." ;
+              rdfs:label "hasRiskScore" .
+
+
+###  http://example.org/smart-farming#hasYear
+:hasYear rdf:type owl:DatatypeProperty ;
+         rdfs:domain :Record ;
+         rdfs:range xsd:gYear ;
+         rdfs:comment "Calendar year of the record." ;
+         rdfs:label "hasYear" .
+
+
+###  http://example.org/smart-farming#recommendedApplicationDate
+:recommendedApplicationDate rdf:type owl:DatatypeProperty ;
+                            rdfs:domain :FertilizerRecommendation ;
+                            rdfs:range xsd:dateTime ;
+                            rdfs:comment """
+      Suggested date/time for fertilizer application (if applicable).
+    """ ;
+                            rdfs:label "recommendedApplicationDate" .
+
+
+###  http://example.org/smart-farming#recommendedFertilizerAction
+:recommendedFertilizerAction rdf:type owl:DatatypeProperty ;
+                             rdfs:domain :FertilizerRecommendation ;
+                             rdfs:range xsd:string ;
+                             rdfs:comment """
+      High-level action, e.g., \"apply_now\", \"postpone\", \"reduce_rate\".
+    """ ;
+                             rdfs:label "recommendedFertilizerAction" .
+
+
+###  http://example.org/smart-farming#recommendedFertilizerRate_kg_per_ha
+:recommendedFertilizerRate_kg_per_ha rdf:type owl:DatatypeProperty ;
+                                     rdfs:domain :FertilizerRecommendation ;
+                                     rdfs:range xsd:float ;
+                                     rdfs:comment """
+      Recommended fertilizer rate in kilograms per hectare (if applicable).
+    """ ;
+                                     rdfs:label "recommendedFertilizerRate_kg_per_ha" .
+
+
+###  http://example.org/smart-farming#soil_CEC
+:soil_CEC rdf:type owl:DatatypeProperty ;
+          rdfs:domain :SoilMeasurement ;
+          rdfs:range xsd:float ;
+          rdfs:comment "Soil cation exchange capacity (meq/100g)." ;
+          rdfs:label "soil_CEC" .
+
+
+###  http://example.org/smart-farming#soil_K_mg_per_kg
+:soil_K_mg_per_kg rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :SoilMeasurement ;
+                  rdfs:range xsd:float ;
+                  rdfs:comment "Soil potassium concentration (mg/kg)." ;
+                  rdfs:label "soil_K_mg_per_kg" .
+
+
+###  http://example.org/smart-farming#soil_N_mg_per_kg
+:soil_N_mg_per_kg rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :SoilMeasurement ;
+                  rdfs:range xsd:float ;
+                  rdfs:comment "Soil nitrogen concentration (mg/kg)." ;
+                  rdfs:label "soil_N_mg_per_kg" .
+
+
+###  http://example.org/smart-farming#soil_OM_pct
+:soil_OM_pct rdf:type owl:DatatypeProperty ;
+             rdfs:domain :SoilMeasurement ;
+             rdfs:range xsd:float ;
+             rdfs:comment "Soil organic matter percentage." ;
+             rdfs:label "soil_OM_pct" .
+
+
+###  http://example.org/smart-farming#soil_P_mg_per_kg
+:soil_P_mg_per_kg rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :SoilMeasurement ;
+                  rdfs:range xsd:float ;
+                  rdfs:comment "Soil phosphorus concentration (mg/kg)." ;
+                  rdfs:label "soil_P_mg_per_kg" .
+
+
+###  http://example.org/smart-farming#soil_pH
+:soil_pH rdf:type owl:DatatypeProperty ;
+         rdfs:domain :SoilMeasurement ;
+         rdfs:range xsd:float ;
+         rdfs:comment "Soil pH." ;
+         rdfs:label "soil_pH" .
+
+
+###  http://example.org/smart-farming#totalPrecip_mm
+:totalPrecip_mm rdf:type owl:DatatypeProperty ;
+                rdfs:domain :WeatherSummary ;
+                rdfs:range xsd:float .
+
+
+###  http://example.org/smart-farming#yield_kg_per_ha
+:yield_kg_per_ha rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :YieldRecord ;
+                 rdfs:range xsd:float ;
+                 rdfs:comment "Yield in kilograms per hectare." ;
+                 rdfs:label "yield_kg_per_ha" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/smart-farming#CerealCrop
+:CerealCrop rdf:type owl:Class ;
+            rdfs:subClassOf :Crop ;
+            rdfs:comment "Cereal crops such as corn, wheat, barley." ;
+            rdfs:label "CerealCrop" .
+
+
+###  http://example.org/smart-farming#ClimateProperty
+:ClimateProperty rdf:type owl:Class ;
+                 rdfs:subClassOf sosa:ObservableProperty ;
+                 rdfs:comment "Observable climate property (e.g., rainfall, temperature)." ;
+                 rdfs:label "ClimateProperty" .
+
+
+###  http://example.org/smart-farming#Crop
+:Crop rdf:type owl:Class ;
+      rdfs:comment "A crop species or variety cultivated on a plot." ;
+      rdfs:label "Crop" .
+
+
+###  http://example.org/smart-farming#CropRotationRecommendation
+:CropRotationRecommendation rdf:type owl:Class ;
+                            rdfs:subClassOf :Recommendation ;
+                            rdfs:comment """
+      Recommendation for the next crop to cultivate on a plot, based on soil nutrient
+      status and historical yield data.
+    """ ;
+                            rdfs:label "CropRotationRecommendation" .
+
+
+###  http://example.org/smart-farming#FertilizerApplication
+:FertilizerApplication rdf:type owl:Class ;
+                       rdfs:comment "An event where fertilizer is applied to a plot." ;
+                       rdfs:label "FertilizerApplication" .
+
+
+###  http://example.org/smart-farming#FertilizerProduct
+:FertilizerProduct rdf:type owl:Class ;
+                   rdfs:comment "A fertilizer product or formulation." ;
+                   rdfs:label "FertilizerProduct" .
+
+
+###  http://example.org/smart-farming#FertilizerRecommendation
+:FertilizerRecommendation rdf:type owl:Class ;
+                          rdfs:subClassOf :Recommendation ;
+                          rdfs:comment """
+      Recommendation about fertilizer application (e.g., apply now, postpone, or adjust rate)
+      based on soil nutrient levels and rainfall forecasts.
+    """ ;
+                          rdfs:label "FertilizerRecommendation" .
+
+
+###  http://example.org/smart-farming#LegumeCrop
+:LegumeCrop rdf:type owl:Class ;
+            rdfs:subClassOf :Crop ;
+            rdfs:comment "Legume crops such as soybean, pea, bean." ;
+            rdfs:label "LegumeCrop" .
+
+
+###  http://example.org/smart-farming#NeedsFertilizerPlot
+:NeedsFertilizerPlot rdf:type owl:Class ;
+                     rdfs:subClassOf :Plot .
+
+
+###  http://example.org/smart-farming#Pest
+:Pest rdf:type owl:Class ;
+      rdfs:comment "A pest species or pest category." ;
+      rdfs:label "Pest" .
+
+
+###  http://example.org/smart-farming#PestInfestationEvent
+:PestInfestationEvent rdf:type owl:Class ;
+                      rdfs:comment """
+      A past infestation event of a particular pest on a plot or field.
+    """ ;
+                      rdfs:label "PestInfestationEvent" .
+
+
+###  http://example.org/smart-farming#PestManagementRecommendation
+:PestManagementRecommendation rdf:type owl:Class ;
+                              rdfs:subClassOf :Recommendation ;
+                              rdfs:comment """
+      Recommendation that proposes rotation or other actions to reduce pest recurrence risk.
+    """ ;
+                              rdfs:label "PestManagementRecommendation" .
+
+
+###  http://example.org/smart-farming#PestRiskAssessment
+:PestRiskAssessment rdf:type owl:Class ;
+                    rdfs:comment """
+      An assessment of future pest risk, typically based on crop, soil, and climate data.
+    """ ;
+                    rdfs:label "PestRiskAssessment" .
+
+
+###  http://example.org/smart-farming#Plot
+:Plot rdf:type owl:Class ;
+      rdfs:subClassOf sosa:FeatureOfInterest ;
+      rdfs:comment "An agricultural plot or field where crops are cultivated." ;
+      rdfs:label "Plot" .
+
+
+###  http://example.org/smart-farming#PostponeFertilizerPlot
+:PostponeFertilizerPlot rdf:type owl:Class ;
+                        rdfs:subClassOf :Plot .
+
+
+###  http://example.org/smart-farming#RainfallForecast
+:RainfallForecast rdf:type owl:Class ;
+                  rdfs:comment """
+      A forecast of rainfall for a time window relevant to fertilizer decisions.
+    """ ;
+                  rdfs:label "RainfallForecast" .
+
+
+###  http://example.org/smart-farming#Recommendation
+:Recommendation rdf:type owl:Class ;
+                rdfs:comment "Generic recommendation produced by the smart farming system." ;
+                rdfs:label "Recommendation" .
+
+
+###  http://example.org/smart-farming#Record
+:Record rdf:type owl:Class ;
+        rdfs:subClassOf sosa:Observation ;
+        rdfs:comment "Generic record of soil, yield, or weather for a plot and year." ;
+        rdfs:label "Record" .
+
+
+###  http://example.org/smart-farming#SoilMeasurement
+:SoilMeasurement rdf:type owl:Class ;
+                 rdfs:subClassOf :Record ;
+                 rdfs:comment "Record of soil nutrient and property measurements." ;
+                 rdfs:label "SoilMeasurement" .
+
+
+###  http://example.org/smart-farming#SoilProperty
+:SoilProperty rdf:type owl:Class ;
+              rdfs:subClassOf sosa:ObservableProperty ;
+              rdfs:comment "Observable soil property (e.g., N, P, K, pH)." ;
+              rdfs:label "SoilProperty" .
+
+
+###  http://example.org/smart-farming#Treatment
+:Treatment rdf:type owl:Class ;
+           rdfs:comment "A management or fertilizer treatment applied to a plot." ;
+           rdfs:label "Treatment" .
+
+
+###  http://example.org/smart-farming#WeatherSummary
+:WeatherSummary rdf:type owl:Class ;
+                rdfs:subClassOf :Record ;
+                rdfs:comment "Aggregated weather/climate summary for a period." ;
+                rdfs:label "WeatherSummary" .
+
+
+###  http://example.org/smart-farming#YieldRecord
+:YieldRecord rdf:type owl:Class ;
+             rdfs:subClassOf :Record ;
+             rdfs:comment "Record of crop yield for a plot and year." ;
+             rdfs:label "YieldRecord" .
+
+
+###  http://www.w3.org/ns/sosa/FeatureOfInterest
+sosa:FeatureOfInterest rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/sosa/ObservableProperty
+sosa:ObservableProperty rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/sosa/Observation
+sosa:Observation rdf:type owl:Class .
+
+
+#################################################################
+#    Rules
+#################################################################
+
+:yr rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:pl rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:c rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:sm rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:n rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:p rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:ws rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:rain rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:yld rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S5" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :YieldRecord ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :yr
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :yr ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :forCrop ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :yr ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :c
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#classPredicate> :CerealCrop ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :c
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#classPredicate> :SoilMeasurement ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument1> :sm
+                                                                                                 ] ;
+                                                                                       rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                  rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                                                            ] ;
+                                                                                                  rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                             rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#propertyPredicate> :soil_N_mg_per_kg ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#argument2> :n
+                                                                                                                       ] ;
+                                                                                                             rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                                        rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                                                                    <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#lessThan> ;
+                                                                                                                                    <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                                                                 rdf:first :n ;
+                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                            rdf:first 10.0 ;
+                                                                                                                                                                                            rdf:rest rdf:nil
+                                                                                                                                                                                          ]
+                                                                                                                                                                               ]
+                                                                                                                                  ] ;
+                                                                                                                        rdf:rest rdf:nil
+                                                                                                                      ]
+                                                                                                           ]
+                                                                                                ]
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :NeedsFertilizerPlot ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :pl
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S3" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :Crop ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :c
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :hasCropName ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :c ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :n
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#stringEqualIgnoreCase> ;
+                                                                             <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                          rdf:first :n ;
+                                                                                                                          rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first "Glycine max L." ;
+                                                                                                                                     rdf:rest rdf:nil
+                                                                                                                                   ]
+                                                                                                                        ]
+                                                                           ] ;
+                                                                 rdf:rest rdf:nil
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :LegumeCrop ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :c
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S4" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :Crop ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :c
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :hasCropName ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :c ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :n
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#stringEqualIgnoreCase> ;
+                                                                             <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                          rdf:first :n ;
+                                                                                                                          rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first "Zea mays L." ;
+                                                                                                                                     rdf:rest rdf:nil
+                                                                                                                                   ]
+                                                                                                                        ]
+                                                                           ] ;
+                                                                 rdf:rest rdf:nil
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :CerealCrop ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :c
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S6" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :SoilMeasurement ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :sm
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :soil_P_mg_per_kg ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :p
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#classPredicate> :WeatherSummary ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :ws
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :forecastRainfallAmount_mm ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :ws ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :rain
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                                                 ] ;
+                                                                                       rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                  rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument1> :ws ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                                                            ] ;
+                                                                                                  rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                             rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#greaterThanOrEqual> ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                                                      rdf:first :p ;
+                                                                                                                                                                      rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                 rdf:first 15.0 ;
+                                                                                                                                                                                 rdf:rest rdf:nil
+                                                                                                                                                                               ]
+                                                                                                                                                                    ]
+                                                                                                                       ] ;
+                                                                                                             rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                                        rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                                                                    <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#greaterThan> ;
+                                                                                                                                    <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                                                                 rdf:first :rain ;
+                                                                                                                                                                                 rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                                                            rdf:first 650.0 ;
+                                                                                                                                                                                            rdf:rest rdf:nil
+                                                                                                                                                                                          ]
+                                                                                                                                                                               ]
+                                                                                                                                  ] ;
+                                                                                                                        rdf:rest rdf:nil
+                                                                                                                      ]
+                                                                                                           ]
+                                                                                                ]
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :PostponeFertilizerPlot ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :pl
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S2" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :SoilMeasurement ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :sm
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :soil_N_mg_per_kg ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :n
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#lessThan> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first :n ;
+                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first 10.0 ;
+                                                                                                                                                rdf:rest rdf:nil
+                                                                                                                                              ]
+                                                                                                                                   ]
+                                                                                      ] ;
+                                                                            rdf:rest rdf:nil
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :NeedsFertilizerPlot ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :pl
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "S1" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :SoilMeasurement ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :sm
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :soil_P_mg_per_kg ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :p
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :sm ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#lessThan> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first :p ;
+                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first 15.0 ;
+                                                                                                                                                rdf:rest rdf:nil
+                                                                                                                                              ]
+                                                                                                                                   ]
+                                                                                      ] ;
+                                                                            rdf:rest rdf:nil
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :NeedsFertilizerPlot ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :pl
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "" ;
+   rdfs:label "LowYieldNeedsFertilizer" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :YieldRecord ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :yr
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :yield_kg_per_ha ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :yr ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :yld
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :aboutPlot ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :yr ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :pl
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#lessThan> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first :yld ;
+                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first 2000.0 ;
+                                                                                                                                                rdf:rest rdf:nil
+                                                                                                                                              ]
+                                                                                                                                   ]
+                                                                                      ] ;
+                                                                            rdf:rest rdf:nil
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :NeedsFertilizerPlot ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :pl
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi

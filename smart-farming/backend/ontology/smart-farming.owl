@@ -1,534 +1,889 @@
 <?xml version="1.0"?>
-<rdf:RDF
-    xmlns="http://example.org/smart-farming#"
-    xml:base="http://example.org/smart-farming"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:owl="http://www.w3.org/2002/07/owl#"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-    xmlns:sosa="http://www.w3.org/ns/sosa/">
-
-  <!-- Ontology header -->
-  <owl:Ontology rdf:about="http://example.org/smart-farming">
-    <rdfs:label>Smart Farming – Crop Rotation, Fertilizer, Pest Risk Ontology</rdfs:label>
-  </owl:Ontology>
-
-
-  <!-- ========================================================= -->
-  <!--  Core domain classes                                      -->
-  <!-- ========================================================= -->
-
-  <!-- Plot / field -->
-  <owl:Class rdf:about="#Plot">
-    <rdfs:label>Plot</rdfs:label>
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
-    <rdfs:comment>An agricultural plot or field where crops are cultivated.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Crop types -->
-  <owl:Class rdf:about="#Crop">
-    <rdfs:label>Crop</rdfs:label>
-    <rdfs:comment>A crop species or variety cultivated on a plot.</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#CerealCrop">
-    <rdfs:subClassOf rdf:resource="#Crop"/>
-    <rdfs:label>CerealCrop</rdfs:label>
-    <rdfs:comment>Cereal crops such as corn, wheat, barley.</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#LegumeCrop">
-    <rdfs:subClassOf rdf:resource="#Crop"/>
-    <rdfs:label>LegumeCrop</rdfs:label>
-    <rdfs:comment>Legume crops such as soybean, pea, bean.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Treatments (fertilizer/management packages) -->
-  <owl:Class rdf:about="#Treatment">
-    <rdfs:label>Treatment</rdfs:label>
-    <rdfs:comment>A management or fertilizer treatment applied to a plot.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Generic record aligned with SOSA Observation -->
-  <owl:Class rdf:about="#Record">
-    <rdfs:label>Record</rdfs:label>
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
-    <rdfs:comment>Generic record of soil, yield, or weather for a plot and year.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Specific record types -->
-  <owl:Class rdf:about="#YieldRecord">
-    <rdfs:label>YieldRecord</rdfs:label>
-    <rdfs:subClassOf rdf:resource="#Record"/>
-    <rdfs:comment>Record of crop yield for a plot and year.</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#SoilMeasurement">
-    <rdfs:label>SoilMeasurement</rdfs:label>
-    <rdfs:subClassOf rdf:resource="#Record"/>
-    <rdfs:comment>Record of soil nutrient and property measurements.</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#WeatherSummary">
-    <rdfs:label>WeatherSummary</rdfs:label>
-    <rdfs:subClassOf rdf:resource="#Record"/>
-    <rdfs:comment>Aggregated weather/climate summary for a period.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Observable properties for soil and climate -->
-  <owl:Class rdf:about="#SoilProperty">
-    <rdfs:label>SoilProperty</rdfs:label>
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
-    <rdfs:comment>Observable soil property (e.g., N, P, K, pH).</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#ClimateProperty">
-    <rdfs:label>ClimateProperty</rdfs:label>
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
-    <rdfs:comment>Observable climate property (e.g., rainfall, temperature).</rdfs:comment>
-  </owl:Class>
+<rdf:RDF xmlns="http://example.org/smart-farming#"
+     xml:base="http://example.org/smart-farming"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:sosa="http://www.w3.org/ns/sosa/"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:swrla="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#">
+    <owl:Ontology rdf:about="http://example.org/smart-farming">
+        <owl:imports rdf:resource="http://example.org/smart-farming"/>
+        <rdfs:label>Smart Farming – Crop Rotation, Fertilizer, Pest Risk Ontology</rdfs:label>
+    </owl:Ontology>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Core domain object properties                            -->
-  <!-- ========================================================= -->
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
 
-  <!-- Record -> Plot -->
-  <owl:ObjectProperty rdf:about="#aboutPlot">
-    <rdfs:label>aboutPlot</rdfs:label>
-    <rdfs:comment>Plot to which the record refers.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Record"/>
-    <rdfs:range rdf:resource="#Plot"/>
-  </owl:ObjectProperty>
-
-  <!-- Record -> Crop -->
-  <owl:ObjectProperty rdf:about="#forCrop">
-    <rdfs:label>forCrop</rdfs:label>
-    <rdfs:comment>Crop to which the record refers.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Record"/>
-    <rdfs:range rdf:resource="#Crop"/>
-  </owl:ObjectProperty>
-
-  <!-- YieldRecord -> Treatment -->
-  <owl:ObjectProperty rdf:about="#withTreatment">
-    <rdfs:label>withTreatment</rdfs:label>
-    <rdfs:comment>Treatment applied for this yield record.</rdfs:comment>
-    <rdfs:domain rdf:resource="#YieldRecord"/>
-    <rdfs:range rdf:resource="#Treatment"/>
-  </owl:ObjectProperty>
-
-  <!-- Record -> ObservableProperty (SOSA) -->
-  <owl:ObjectProperty rdf:about="#observesProperty">
-    <rdfs:label>observesProperty</rdfs:label>
-    <rdfs:comment>Observable property measured in this record.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Record"/>
-    <rdfs:range rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
-  </owl:ObjectProperty>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Core domain datatype properties                          -->
-  <!-- ========================================================= -->
+    <!-- http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled -->
 
-  <!-- Year of the record -->
-  <owl:DatatypeProperty rdf:about="#hasYear">
-    <rdfs:label>hasYear</rdfs:label>
-    <rdfs:comment>Calendar year of the record.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Record"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
-  </owl:DatatypeProperty>
+    <owl:AnnotationProperty rdf:about="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled"/>
+    
 
-  <!-- Yield -->
-  <owl:DatatypeProperty rdf:about="#yield_kg_per_ha">
-    <rdfs:label>yield_kg_per_ha</rdfs:label>
-    <rdfs:comment>Yield in kilograms per hectare.</rdfs:comment>
-    <rdfs:domain rdf:resource="#YieldRecord"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
 
-  <!-- Some common soil properties (examples) -->
-  <owl:DatatypeProperty rdf:about="#soil_N_mg_per_kg">
-    <rdfs:label>soil_N_mg_per_kg</rdfs:label>
-    <rdfs:comment>Soil nitrogen concentration (mg/kg).</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
 
-  <owl:DatatypeProperty rdf:about="#soil_P_mg_per_kg">
-    <rdfs:label>soil_P_mg_per_kg</rdfs:label>
-    <rdfs:comment>Soil phosphorus concentration (mg/kg).</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
+    
 
-  <owl:DatatypeProperty rdf:about="#soil_K_mg_per_kg">
-    <rdfs:label>soil_K_mg_per_kg</rdfs:label>
-    <rdfs:comment>Soil potassium concentration (mg/kg).</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:about="#soil_pH">
-    <rdfs:label>soil_pH</rdfs:label>
-    <rdfs:comment>Soil pH.</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
+    <!-- http://www.w3.org/2001/XMLSchema#gYear -->
 
-  <owl:DatatypeProperty rdf:about="#hasCropName">
-    <rdfs:label>hasCropName</rdfs:label>
-    <rdfs:comment>
-      Human-readable crop name (e.g., "Glycine max L."), used for SWRL reasoning.
+    <rdfs:Datatype rdf:about="http://www.w3.org/2001/XMLSchema#gYear"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://example.org/smart-farming#aboutPlot -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#aboutPlot">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Plot"/>
+        <rdfs:comment>Plot to which the record refers.</rdfs:comment>
+        <rdfs:label>aboutPlot</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#basedOnPestRiskAssessment -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#basedOnPestRiskAssessment">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestManagementRecommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#PestRiskAssessment"/>
+        <rdfs:comment>
+      PestRiskAssessment used as input when computing a pest management recommendation.
     </rdfs:comment>
-    <rdfs:domain rdf:resource="#Crop"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </owl:DatatypeProperty>
+        <rdfs:label>basedOnPestRiskAssessment</rdfs:label>
+    </owl:ObjectProperty>
+    
 
-  <owl:DatatypeProperty rdf:about="#soil_OM_pct">
-    <rdfs:label>soil_OM_pct</rdfs:label>
-    <rdfs:comment>Soil organic matter percentage.</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
+
+    <!-- http://example.org/smart-farming#createsFertilizerApplication -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#createsFertilizerApplication">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#FertilizerRecommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#FertilizerApplication"/>
+        <rdfs:comment>
+      Links a fertilizer recommendation to a corresponding planned application event.
+    </rdfs:comment>
+        <rdfs:label>createsFertilizerApplication</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#forCrop -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#forCrop">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Crop"/>
+        <rdfs:comment>Crop to which the record refers.</rdfs:comment>
+        <rdfs:label>forCrop</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasPestInfestation -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#hasPestInfestation">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Plot"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#PestInfestationEvent"/>
+        <rdfs:comment>A past pest infestation event on a plot.</rdfs:comment>
+        <rdfs:label>hasPestInfestation</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasPestRiskAssessment -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#hasPestRiskAssessment">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Plot"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#PestRiskAssessment"/>
+        <rdfs:comment>Pest risk assessment associated with a plot.</rdfs:comment>
+        <rdfs:label>hasPestRiskAssessment</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#infestationOfPest -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#infestationOfPest">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestInfestationEvent"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Pest"/>
+        <rdfs:comment>The pest involved in a pest infestation event.</rdfs:comment>
+        <rdfs:label>infestationOfPest</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#observesProperty -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#observesProperty">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:range rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
+        <rdfs:comment>Observable property measured in this record.</rdfs:comment>
+        <rdfs:label>observesProperty</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#recommendsCrop -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#recommendsCrop">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Crop"/>
+        <rdfs:comment>The crop recommended as the next crop in the rotation.</rdfs:comment>
+        <rdfs:label>recommendsCrop</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#recommendsFertilizerProduct -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#recommendsFertilizerProduct">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#FertilizerRecommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#FertilizerProduct"/>
+        <rdfs:comment>
+      Fertilizer product recommended to be applied.
+    </rdfs:comment>
+        <rdfs:label>recommendsFertilizerProduct</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#riskForPest -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#riskForPest">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestRiskAssessment"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Pest"/>
+        <rdfs:comment>The pest for which a risk assessment is made.</rdfs:comment>
+        <rdfs:label>riskForPest</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#targetsPest -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#targetsPest">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestManagementRecommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Pest"/>
+        <rdfs:comment>The pest whose recurrence the recommendation aims to reduce.</rdfs:comment>
+        <rdfs:label>targetsPest</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#targetsPlot -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#targetsPlot">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Plot"/>
+        <rdfs:comment>Plot for which a recommendation is issued.</rdfs:comment>
+        <rdfs:label>targetsPlot</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#usesRainfallForecast -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#usesRainfallForecast">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#RainfallForecast"/>
+        <rdfs:comment>
+      RainfallForecast used as input when computing a recommendation.
+    </rdfs:comment>
+        <rdfs:label>usesRainfallForecast</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#usesSoilMeasurement -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#usesSoilMeasurement">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:comment>
+      SoilMeasurement record used as input when computing a recommendation.
+    </rdfs:comment>
+        <rdfs:label>usesSoilMeasurement</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#usesWeatherSummary -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#usesWeatherSummary">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#WeatherSummary"/>
+        <rdfs:comment>
+      WeatherSummary record used as input when computing a recommendation.
+    </rdfs:comment>
+        <rdfs:label>usesWeatherSummary</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#usesYieldRecord -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#usesYieldRecord">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+        <rdfs:comment>
+      YieldRecord used as input when computing a recommendation.
+    </rdfs:comment>
+        <rdfs:label>usesYieldRecord</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#withTreatment -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/smart-farming#withTreatment">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+        <rdfs:range rdf:resource="http://example.org/smart-farming#Treatment"/>
+        <rdfs:comment>Treatment applied for this yield record.</rdfs:comment>
+        <rdfs:label>withTreatment</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://example.org/smart-farming#forYear -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#forYear">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment>Year for which the recommendation is intended.</rdfs:comment>
+        <rdfs:label>forYear</rdfs:label>
+    </owl:DatatypeProperty>
+    
+    <!-- http://example.org/smart-farming#totalPrecip_mm -->
+
+<owl:DatatypeProperty rdf:about="http://example.org/smart-farming#totalPrecip_mm">
+    <rdfs:domain rdf:resource="http://example.org/smart-farming#WeatherSummary"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
-
-  <owl:DatatypeProperty rdf:about="#soil_CEC">
-    <rdfs:label>soil_CEC</rdfs:label>
-    <rdfs:comment>Soil cation exchange capacity (meq/100g).</rdfs:comment>
-    <rdfs:domain rdf:resource="#SoilMeasurement"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
-
-  <!-- ========================================================= -->
-  <!--  Recommendation core (shared by all three use cases)      -->
-  <!-- ========================================================= -->
-
-  <owl:Class rdf:about="#Recommendation">
-    <rdfs:label>Recommendation</rdfs:label>
-    <rdfs:comment>Generic recommendation produced by the smart farming system.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Use Case 1: Crop rotation recommendation -->
-  <owl:Class rdf:about="#CropRotationRecommendation">
-    <rdfs:subClassOf rdf:resource="#Recommendation"/>
-    <rdfs:label>CropRotationRecommendation</rdfs:label>
     <rdfs:comment>
+      Total annual precipitation at the plot for this WeatherSummary, in millimeters.
+    </rdfs:comment>
+    <rdfs:label>totalPrecip_mm</rdfs:label>
+</owl:DatatypeProperty>
+
+
+
+    <!-- http://example.org/smart-farming#forecastEndTime -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#forecastEndTime">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#RainfallForecast"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rdfs:label>forecastEndTime</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#forecastRainfallAmount_mm -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#forecastRainfallAmount_mm">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#RainfallForecast"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>
+      Total rainfall forecasted for the period, in millimeters.
+    </rdfs:comment>
+        <rdfs:label>forecastRainfallAmount_mm</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#forecastStartTime -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#forecastStartTime">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#RainfallForecast"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rdfs:label>forecastStartTime</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasCropName -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasCropName">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Crop"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>
+      Human-readable crop name (e.g., &quot;Glycine max L.&quot;), used for SWRL reasoning.
+    </rdfs:comment>
+        <rdfs:label>hasCropName</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasJustificationText -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasJustificationText">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>
+      Human-readable explanation of why this recommendation was generated.
+    </rdfs:comment>
+        <rdfs:label>hasJustificationText</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasRecommendationScore -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasRecommendationScore">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+        <rdfs:comment>
+      Numeric score representing confidence or utility of the recommendation.
+    </rdfs:comment>
+        <rdfs:label>hasRecommendationScore</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasRiskLevel -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasRiskLevel">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestRiskAssessment"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>
+      Categorical pest risk level, e.g., &quot;low&quot;, &quot;medium&quot;, &quot;high&quot;.
+    </rdfs:comment>
+        <rdfs:label>hasRiskLevel</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasRiskScore -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasRiskScore">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#PestRiskAssessment"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+        <rdfs:comment>Numeric pest risk score.</rdfs:comment>
+        <rdfs:label>hasRiskScore</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#hasYear -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#hasYear">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment>Calendar year of the record.</rdfs:comment>
+        <rdfs:label>hasYear</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#recommendedApplicationDate -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#recommendedApplicationDate">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#FertilizerRecommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rdfs:comment>
+      Suggested date/time for fertilizer application (if applicable).
+    </rdfs:comment>
+        <rdfs:label>recommendedApplicationDate</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#recommendedFertilizerAction -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#recommendedFertilizerAction">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#FertilizerRecommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>
+      High-level action, e.g., &quot;apply_now&quot;, &quot;postpone&quot;, &quot;reduce_rate&quot;.
+    </rdfs:comment>
+        <rdfs:label>recommendedFertilizerAction</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#recommendedFertilizerRate_kg_per_ha -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#recommendedFertilizerRate_kg_per_ha">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#FertilizerRecommendation"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>
+      Recommended fertilizer rate in kilograms per hectare (if applicable).
+    </rdfs:comment>
+        <rdfs:label>recommendedFertilizerRate_kg_per_ha</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_CEC -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_CEC">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil cation exchange capacity (meq/100g).</rdfs:comment>
+        <rdfs:label>soil_CEC</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_K_mg_per_kg -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_K_mg_per_kg">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil potassium concentration (mg/kg).</rdfs:comment>
+        <rdfs:label>soil_K_mg_per_kg</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_N_mg_per_kg -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_N_mg_per_kg">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil nitrogen concentration (mg/kg).</rdfs:comment>
+        <rdfs:label>soil_N_mg_per_kg</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_OM_pct -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_OM_pct">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil organic matter percentage.</rdfs:comment>
+        <rdfs:label>soil_OM_pct</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_P_mg_per_kg -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_P_mg_per_kg">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil phosphorus concentration (mg/kg).</rdfs:comment>
+        <rdfs:label>soil_P_mg_per_kg</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#soil_pH -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#soil_pH">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#SoilMeasurement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Soil pH.</rdfs:comment>
+        <rdfs:label>soil_pH</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://example.org/smart-farming#yield_kg_per_ha -->
+
+    <owl:DatatypeProperty rdf:about="http://example.org/smart-farming#yield_kg_per_ha">
+        <rdfs:domain rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment>Yield in kilograms per hectare.</rdfs:comment>
+        <rdfs:label>yield_kg_per_ha</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://example.org/smart-farming#CerealCrop -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#CerealCrop">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Crop"/>
+        <rdfs:comment>Cereal crops such as corn, wheat, barley.</rdfs:comment>
+        <rdfs:label>CerealCrop</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#ClimateProperty -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#ClimateProperty">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
+        <rdfs:comment>Observable climate property (e.g., rainfall, temperature).</rdfs:comment>
+        <rdfs:label>ClimateProperty</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#Crop -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#Crop">
+        <rdfs:comment>A crop species or variety cultivated on a plot.</rdfs:comment>
+        <rdfs:label>Crop</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#CropRotationRecommendation -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#CropRotationRecommendation">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:comment>
       Recommendation for the next crop to cultivate on a plot, based on soil nutrient
       status and historical yield data.
     </rdfs:comment>
-  </owl:Class>
+        <rdfs:label>CropRotationRecommendation</rdfs:label>
+    </owl:Class>
+    
 
-  <!-- Use Case 2: Fertilizer optimization recommendation -->
-  <owl:Class rdf:about="#FertilizerRecommendation">
-    <rdfs:subClassOf rdf:resource="#Recommendation"/>
-    <rdfs:label>FertilizerRecommendation</rdfs:label>
-    <rdfs:comment>
+
+    <!-- http://example.org/smart-farming#FertilizerApplication -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#FertilizerApplication">
+        <rdfs:comment>An event where fertilizer is applied to a plot.</rdfs:comment>
+        <rdfs:label>FertilizerApplication</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#FertilizerProduct -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#FertilizerProduct">
+        <rdfs:comment>A fertilizer product or formulation.</rdfs:comment>
+        <rdfs:label>FertilizerProduct</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#FertilizerRecommendation -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#FertilizerRecommendation">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:comment>
       Recommendation about fertilizer application (e.g., apply now, postpone, or adjust rate)
       based on soil nutrient levels and rainfall forecasts.
     </rdfs:comment>
-  </owl:Class>
-
-  <!-- Use Case 3: Pest risk mitigation recommendation -->
-  <owl:Class rdf:about="#PestManagementRecommendation">
-    <rdfs:subClassOf rdf:resource="#Recommendation"/>
-    <rdfs:label>PestManagementRecommendation</rdfs:label>
-    <rdfs:comment>
-      Recommendation that proposes rotation or other actions to reduce pest recurrence risk.
-    </rdfs:comment>
-  </owl:Class>
+        <rdfs:label>FertilizerRecommendation</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Use Case 2: Fertilizer optimization                      -->
-  <!-- ========================================================= -->
-
-  <owl:Class rdf:about="#FertilizerProduct">
-    <rdfs:label>FertilizerProduct</rdfs:label>
-    <rdfs:comment>A fertilizer product or formulation.</rdfs:comment>
-  </owl:Class>
-
-  <owl:Class rdf:about="#FertilizerApplication">
-    <rdfs:label>FertilizerApplication</rdfs:label>
-    <rdfs:comment>An event where fertilizer is applied to a plot.</rdfs:comment>
-  </owl:Class>
-
-  <!-- Simple rainfall forecast class (can be aligned with your weather model) -->
-  <owl:Class rdf:about="#RainfallForecast">
-    <rdfs:label>RainfallForecast</rdfs:label>
-    <rdfs:comment>
-      A forecast of rainfall for a time window relevant to fertilizer decisions.
-    </rdfs:comment>
-  </owl:Class>
+    <!-- http://example.org/smart-farming#LegumeCrop -->
+    <owl:Class rdf:about="http://example.org/smart-farming#PostponeFertilizerPlot">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Plot"/>
+        <rdfs:comment>
+            Plot where fertilizer application should be postponed due to high rainfall and low soil P.
+        </rdfs:comment>
+        <rdfs:label>PostponeFertilizerPlot</rdfs:label>
+    </owl:Class>
 
 
-  <!-- ========================================================= -->
-  <!--  Use Case 3: Pest risk mitigation                         -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#NeedsFertilizerPlot -->
 
-  <owl:Class rdf:about="#Pest">
-    <rdfs:label>Pest</rdfs:label>
-    <rdfs:comment>A pest species or pest category.</rdfs:comment>
-  </owl:Class>
+    <owl:Class rdf:about="http://example.org/smart-farming#NeedsFertilizerPlot">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Plot"/>
+    </owl:Class>
+    
 
-  <owl:Class rdf:about="#PestInfestationEvent">
-    <rdfs:label>PestInfestationEvent</rdfs:label>
-    <rdfs:comment>
+
+    <!-- http://example.org/smart-farming#Pest -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#Pest">
+        <rdfs:comment>A pest species or pest category.</rdfs:comment>
+        <rdfs:label>Pest</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#PestInfestationEvent -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#PestInfestationEvent">
+        <rdfs:comment>
       A past infestation event of a particular pest on a plot or field.
     </rdfs:comment>
-  </owl:Class>
+        <rdfs:label>PestInfestationEvent</rdfs:label>
+    </owl:Class>
+    
 
-  <owl:Class rdf:about="#PestRiskAssessment">
-    <rdfs:label>PestRiskAssessment</rdfs:label>
-    <rdfs:comment>
+
+    <!-- http://example.org/smart-farming#PestManagementRecommendation -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#PestManagementRecommendation">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Recommendation"/>
+        <rdfs:comment>
+      Recommendation that proposes rotation or other actions to reduce pest recurrence risk.
+    </rdfs:comment>
+        <rdfs:label>PestManagementRecommendation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://example.org/smart-farming#PestRiskAssessment -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#PestRiskAssessment">
+        <rdfs:comment>
       An assessment of future pest risk, typically based on crop, soil, and climate data.
     </rdfs:comment>
-  </owl:Class>
+        <rdfs:label>PestRiskAssessment</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Shared object properties for recommendations             -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#Plot -->
 
-  <!-- Plot for which a recommendation is issued -->
-  <owl:ObjectProperty rdf:about="#targetsPlot">
-    <rdfs:label>targetsPlot</rdfs:label>
-    <rdfs:comment>Plot for which a recommendation is issued.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#Plot"/>
-  </owl:ObjectProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#Plot">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
+        <rdfs:comment>An agricultural plot or field where crops are cultivated.</rdfs:comment>
+        <rdfs:label>Plot</rdfs:label>
+    </owl:Class>
+    
 
-  <!-- Soil measurement used as input for the recommendation -->
-  <owl:ObjectProperty rdf:about="#usesSoilMeasurement">
-    <rdfs:label>usesSoilMeasurement</rdfs:label>
-    <rdfs:comment>
-      SoilMeasurement record used as input when computing a recommendation.
+
+    <!-- http://example.org/smart-farming#RainfallForecast -->
+
+    <owl:Class rdf:about="http://example.org/smart-farming#RainfallForecast">
+        <rdfs:comment>
+      A forecast of rainfall for a time window relevant to fertilizer decisions.
     </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#SoilMeasurement"/>
-  </owl:ObjectProperty>
-
-  <!-- Yield record used as input for the recommendation -->
-  <owl:ObjectProperty rdf:about="#usesYieldRecord">
-    <rdfs:label>usesYieldRecord</rdfs:label>
-    <rdfs:comment>
-      YieldRecord used as input when computing a recommendation.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#YieldRecord"/>
-  </owl:ObjectProperty>
-
-  <!-- Observed climate record used (e.g., WeatherSummary) -->
-  <owl:ObjectProperty rdf:about="#usesWeatherSummary">
-    <rdfs:label>usesWeatherSummary</rdfs:label>
-    <rdfs:comment>
-      WeatherSummary record used as input when computing a recommendation.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#WeatherSummary"/>
-  </owl:ObjectProperty>
-
-  <!-- Rainfall forecast used by fertilizer and pest recommendations -->
-  <owl:ObjectProperty rdf:about="#usesRainfallForecast">
-    <rdfs:label>usesRainfallForecast</rdfs:label>
-    <rdfs:comment>
-      RainfallForecast used as input when computing a recommendation.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#RainfallForecast"/>
-  </owl:ObjectProperty>
-
-  <!-- Recommended crop (used by crop rotation and pest mitigation) -->
-  <owl:ObjectProperty rdf:about="#recommendsCrop">
-    <rdfs:label>recommendsCrop</rdfs:label>
-    <rdfs:comment>The crop recommended as the next crop in the rotation.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="#Crop"/>
-  </owl:ObjectProperty>
+        <rdfs:label>RainfallForecast</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Additional object properties – fertilizer (UC2)          -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#Recommendation -->
 
-  <owl:ObjectProperty rdf:about="#recommendsFertilizerProduct">
-    <rdfs:label>recommendsFertilizerProduct</rdfs:label>
-    <rdfs:comment>
-      Fertilizer product recommended to be applied.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#FertilizerRecommendation"/>
-    <rdfs:range rdf:resource="#FertilizerProduct"/>
-  </owl:ObjectProperty>
-
-  <owl:ObjectProperty rdf:about="#createsFertilizerApplication">
-    <rdfs:label>createsFertilizerApplication</rdfs:label>
-    <rdfs:comment>
-      Links a fertilizer recommendation to a corresponding planned application event.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#FertilizerRecommendation"/>
-    <rdfs:range rdf:resource="#FertilizerApplication"/>
-  </owl:ObjectProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#Recommendation">
+        <rdfs:comment>Generic recommendation produced by the smart farming system.</rdfs:comment>
+        <rdfs:label>Recommendation</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Additional object properties – pest risk (UC3)           -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#Record -->
 
-  <!-- Past infestations recorded for a plot -->
-  <owl:ObjectProperty rdf:about="#hasPestInfestation">
-    <rdfs:label>hasPestInfestation</rdfs:label>
-    <rdfs:comment>A past pest infestation event on a plot.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Plot"/>
-    <rdfs:range rdf:resource="#PestInfestationEvent"/>
-  </owl:ObjectProperty>
-
-  <owl:ObjectProperty rdf:about="#infestationOfPest">
-    <rdfs:label>infestationOfPest</rdfs:label>
-    <rdfs:comment>The pest involved in a pest infestation event.</rdfs:comment>
-    <rdfs:domain rdf:resource="#PestInfestationEvent"/>
-    <rdfs:range rdf:resource="#Pest"/>
-  </owl:ObjectProperty>
-
-  <!-- Risk assessments attached to a plot -->
-  <owl:ObjectProperty rdf:about="#hasPestRiskAssessment">
-    <rdfs:label>hasPestRiskAssessment</rdfs:label>
-    <rdfs:comment>Pest risk assessment associated with a plot.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Plot"/>
-    <rdfs:range rdf:resource="#PestRiskAssessment"/>
-  </owl:ObjectProperty>
-
-  <owl:ObjectProperty rdf:about="#riskForPest">
-    <rdfs:label>riskForPest</rdfs:label>
-    <rdfs:comment>The pest for which a risk assessment is made.</rdfs:comment>
-    <rdfs:domain rdf:resource="#PestRiskAssessment"/>
-    <rdfs:range rdf:resource="#Pest"/>
-  </owl:ObjectProperty>
-
-  <!-- Pest management recommendation specifics -->
-  <owl:ObjectProperty rdf:about="#basedOnPestRiskAssessment">
-    <rdfs:label>basedOnPestRiskAssessment</rdfs:label>
-    <rdfs:comment>
-      PestRiskAssessment used as input when computing a pest management recommendation.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#PestManagementRecommendation"/>
-    <rdfs:range rdf:resource="#PestRiskAssessment"/>
-  </owl:ObjectProperty>
-
-  <owl:ObjectProperty rdf:about="#targetsPest">
-    <rdfs:label>targetsPest</rdfs:label>
-    <rdfs:comment>The pest whose recurrence the recommendation aims to reduce.</rdfs:comment>
-    <rdfs:domain rdf:resource="#PestManagementRecommendation"/>
-    <rdfs:range rdf:resource="#Pest"/>
-  </owl:ObjectProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#Record">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
+        <rdfs:comment>Generic record of soil, yield, or weather for a plot and year.</rdfs:comment>
+        <rdfs:label>Record</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Shared datatype properties                               -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#SoilMeasurement -->
 
-  <!-- Target year for which the recommendation is intended -->
-  <owl:DatatypeProperty rdf:about="#forYear">
-    <rdfs:label>forYear</rdfs:label>
-    <rdfs:comment>Year for which the recommendation is intended.</rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
-  </owl:DatatypeProperty>
-
-  <!-- Human-readable explanation of why the recommendation was generated -->
-  <owl:DatatypeProperty rdf:about="#hasJustificationText">
-    <rdfs:label>hasJustificationText</rdfs:label>
-    <rdfs:comment>
-      Human-readable explanation of why this recommendation was generated.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </owl:DatatypeProperty>
-
-  <!-- Numeric score (e.g., confidence, utility) -->
-  <owl:DatatypeProperty rdf:about="#hasRecommendationScore">
-    <rdfs:label>hasRecommendationScore</rdfs:label>
-    <rdfs:comment>
-      Numeric score representing confidence or utility of the recommendation.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#Recommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-  </owl:DatatypeProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#SoilMeasurement">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:comment>Record of soil nutrient and property measurements.</rdfs:comment>
+        <rdfs:label>SoilMeasurement</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Datatype properties – rainfall forecast (UC2/UC3)        -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#SoilProperty -->
 
-  <owl:DatatypeProperty rdf:about="#forecastRainfallAmount_mm">
-    <rdfs:label>forecastRainfallAmount_mm</rdfs:label>
-    <rdfs:comment>
-      Total rainfall forecasted for the period, in millimeters.
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#RainfallForecast"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
-
-  <owl:DatatypeProperty rdf:about="#forecastStartTime">
-    <rdfs:label>forecastStartTime</rdfs:label>
-    <rdfs:domain rdf:resource="#RainfallForecast"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-  </owl:DatatypeProperty>
-
-  <owl:DatatypeProperty rdf:about="#forecastEndTime">
-    <rdfs:label>forecastEndTime</rdfs:label>
-    <rdfs:domain rdf:resource="#RainfallForecast"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-  </owl:DatatypeProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#SoilProperty">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
+        <rdfs:comment>Observable soil property (e.g., N, P, K, pH).</rdfs:comment>
+        <rdfs:label>SoilProperty</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Datatype properties – pest risk (UC3)                    -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#Treatment -->
 
-  <owl:DatatypeProperty rdf:about="#hasRiskScore">
-    <rdfs:label>hasRiskScore</rdfs:label>
-    <rdfs:comment>Numeric pest risk score.</rdfs:comment>
-    <rdfs:domain rdf:resource="#PestRiskAssessment"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-  </owl:DatatypeProperty>
-
-  <owl:DatatypeProperty rdf:about="#hasRiskLevel">
-    <rdfs:label>hasRiskLevel</rdfs:label>
-    <rdfs:comment>
-      Categorical pest risk level, e.g., "low", "medium", "high".
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#PestRiskAssessment"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </owl:DatatypeProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#Treatment">
+        <rdfs:comment>A management or fertilizer treatment applied to a plot.</rdfs:comment>
+        <rdfs:label>Treatment</rdfs:label>
+    </owl:Class>
+    
 
 
-  <!-- ========================================================= -->
-  <!--  Datatype properties – fertilizer recommendation (UC2)    -->
-  <!-- ========================================================= -->
+    <!-- http://example.org/smart-farming#WeatherSummary -->
 
-  <owl:DatatypeProperty rdf:about="#recommendedFertilizerAction">
-    <rdfs:label>recommendedFertilizerAction</rdfs:label>
-    <rdfs:comment>
-      High-level action, e.g., "apply_now", "postpone", "reduce_rate".
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#FertilizerRecommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </owl:DatatypeProperty>
+    <owl:Class rdf:about="http://example.org/smart-farming#WeatherSummary">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:comment>Aggregated weather/climate summary for a period.</rdfs:comment>
+        <rdfs:label>WeatherSummary</rdfs:label>
+    </owl:Class>
+    
 
-  <owl:DatatypeProperty rdf:about="#recommendedApplicationDate">
-    <rdfs:label>recommendedApplicationDate</rdfs:label>
-    <rdfs:comment>
-      Suggested date/time for fertilizer application (if applicable).
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#FertilizerRecommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-  </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:about="#recommendedFertilizerRate_kg_per_ha">
-    <rdfs:label>recommendedFertilizerRate_kg_per_ha</rdfs:label>
-    <rdfs:comment>
-      Recommended fertilizer rate in kilograms per hectare (if applicable).
-    </rdfs:comment>
-    <rdfs:domain rdf:resource="#FertilizerRecommendation"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-  </owl:DatatypeProperty>
+    <!-- http://example.org/smart-farming#YieldRecord -->
 
+    <owl:Class rdf:about="http://example.org/smart-farming#YieldRecord">
+        <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Record"/>
+        <rdfs:comment>Record of crop yield for a plot and year.</rdfs:comment>
+        <rdfs:label>YieldRecord</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.w3.org/ns/sosa/FeatureOfInterest -->
+
+    <owl:Class rdf:about="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
+    
+
+
+    <!-- http://www.w3.org/ns/sosa/ObservableProperty -->
+
+    <owl:Class rdf:about="http://www.w3.org/ns/sosa/ObservableProperty"/>
+    
+
+
+    <!-- http://www.w3.org/ns/sosa/Observation -->
+
+    <owl:Class rdf:about="http://www.w3.org/ns/sosa/Observation"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Rules
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="http://example.org/smart-farming#yr">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/smart-farming#yld">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/smart-farming#pl">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description>
+        <swrla:isRuleEnabled rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</swrla:isRuleEnabled>
+        <rdfs:comment></rdfs:comment>
+        <rdfs:label>LowYieldNeedsFertilizer</rdfs:label>
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Imp"/>
+        <swrl:body>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://example.org/smart-farming#YieldRecord"/>
+                        <swrl:argument1 rdf:resource="http://example.org/smart-farming#yr"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom"/>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/smart-farming#yield_kg_per_ha"/>
+                                <swrl:argument1 rdf:resource="http://example.org/smart-farming#yr"/>
+                                <swrl:argument2 rdf:resource="http://example.org/smart-farming#yld"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                <rdf:first>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                        <swrl:propertyPredicate rdf:resource="http://example.org/smart-farming#aboutPlot"/>
+                                        <swrl:argument1 rdf:resource="http://example.org/smart-farming#yr"/>
+                                        <swrl:argument2 rdf:resource="http://example.org/smart-farming#pl"/>
+                                    </rdf:Description>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                        <rdf:first>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#BuiltinAtom"/>
+                                                <swrl:builtin rdf:resource="http://www.w3.org/2003/11/swrlb#lessThan"/>
+                                                <swrl:arguments>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#List"/>
+                                                        <rdf:first rdf:resource="http://example.org/smart-farming#yld"/>
+                                                        <rdf:rest>
+                                                            <rdf:Description>
+                                                                <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#List"/>
+                                                                <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2000.0</rdf:first>
+                                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                                            </rdf:Description>
+                                                        </rdf:rest>
+                                                    </rdf:Description>
+                                                </swrl:arguments>
+                                            </rdf:Description>
+                                        </rdf:first>
+                                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                    </rdf:Description>
+                                </rdf:rest>
+                            </rdf:Description>
+                        </rdf:rest>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:body>
+        <swrl:head>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://example.org/smart-farming#NeedsFertilizerPlot"/>
+                        <swrl:argument1 rdf:resource="http://example.org/smart-farming#pl"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+            </rdf:Description>
+        </swrl:head>
+    </rdf:Description>
 </rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+

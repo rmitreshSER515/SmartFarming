@@ -1,130 +1,79 @@
-# backend/app.py
-from flask import Flask, jsonify, send_file
-from rdflib import Graph, Namespace
-import os
+from flask import Flask, jsonify
+from flask_cors import CORS  # if you call from a separate frontend
+from scripts.query_service import (
+    list_plots,
+    get_plot_year_summary,
+    get_plots_needing_fertilizer,
+    get_legume_crops,
+    get_cereal_crops,
+    get_plots_to_postpone_fertilizer,
+    get_plots_high_pest_risk,
+    get_next_crop_recommendations,
+)
 
 app = Flask(__name__)
-BASE = os.path.dirname(__file__)
-INFERRED_OWL = os.path.join(BASE, "ontology", "smart-farming.owl")
-INSTANCES_TTL = os.path.join(BASE, "ontology", "instances.ttl")
-NS = "http://example.org/smart-farming#"
-
-def load_graph():
-    g = Graph()
-    if os.path.exists(INFERRED_OWL):
-        g.parse(INFERRED_OWL)
-    else:
-        g.parse(INSTANCES_TTL, format="turtle")
-    return g
+CORS(app)  # optional but handy during dev
 
 
-############################################
-# API 1: Base Yield + Soil + Weather Data  #
-############################################
-@app.route("/api/records/<plot>/<year>")
-def records(plot, year):
-    g = load_graph()
-
-    q = f"""
-    PREFIX sf:<{NS}>
-    SELECT ?cropName ?yieldVal ?precip ?ph WHERE {{
-      ?r a sf:YieldRecord ;
-         sf:aboutPlot sf:{plot} ;
-         sf:hasYear ?yy ;
-         sf:forCrop ?crop .
-
-      FILTER(STR(?yy) = "{year}")
-
-      OPTIONAL {{ ?crop sf:hasCropName ?cropName . }}
-      OPTIONAL {{ ?r sf:yield_kg_per_ha ?yieldVal . }}
-      OPTIONAL {{ ?r sf:usesWeatherSummary ?w .
-                  ?w sf:forecastRainfallAmount_mm ?precip . }}
-      OPTIONAL {{ ?r sf:usesSoilMeasurement ?s .
-                  ?s sf:soil_pH ?ph . }}
-    }}
-    """
-
-    results = g.query(q)
-
-    out = []
-    for row in results:
-        out.append({
-            "crop": str(row.cropName) if row.cropName else None,
-            "yield_kg_ha": float(row["yieldVal"]) if row["yieldVal"] else None,
-            "precip_mm": float(row["precip"]) if row["precip"] else None,
-            "soil_pH": float(row["ph"]) if row["ph"] else None,
-        })
-
-    return jsonify(out)
+@app.route("/api/plots", methods=["GET"])
+def api_list_plots():
+    plots = list_plots()
+    return jsonify({"plots": plots})
 
 
-##############################################
-# API 2: Fertilizer Recommendations          #
-##############################################
-@app.route("/api/fertilizer/<plot>/<year>")
-def fertilizer(plot, year):
-    g = load_graph()
+@app.route("/api/plots/<plot_id>/year/<int:year>", methods=["GET"])
+def api_plot_year(plot_id, year):
+    data = get_plot_year_summary(plot_id, year)
+    if data is None:
+        return jsonify({"error": "No data found", "plot_id": plot_id, "year": year}), 404
+    return jsonify(data)
 
-    q = f"""
-    PREFIX sf:<{NS}>
-    SELECT ?action ?just WHERE {{
-      ?fr a sf:FertilizerRecommendation ;
-          sf:targetsPlot sf:{plot} ;
-          sf:forYear ?yy ;
-          sf:recommendedFertilizerAction ?action ;
-          sf:hasJustificationText ?just .
-
-      FILTER(STR(?yy) = "{year}")
-    }}
-    """
-
-    results = g.query(q)
-
-    return jsonify([
-        {"action": str(row["action"]), "justification": str(row["just"])}
-        for row in results
-    ])
+@app.route("/api/recommendations/needs-fertilizer", methods=["GET"])
+def api_needs_fertilizer():
+    plots = get_plots_needing_fertilizer()
+    return jsonify({
+        "recommendation": "NeedsFertilizerPlot",
+        "plots": plots,
+    })
 
 
-##############################################
-# API 3: Crop Rotation Recommendations       #
-##############################################
-@app.route("/api/croprot/<plot>/<year>")
-def croprot(plot, year):
-    g = load_graph()
-
-    q = f"""
-    PREFIX sf:<{NS}>
-    SELECT ?crop ?just WHERE {{
-      ?cr a sf:CropRotationRecommendation ;
-          sf:targetsPlot sf:{plot} ;
-          sf:forYear ?yy ;
-          sf:recommendsCrop ?crop ;
-          sf:hasJustificationText ?just .
-
-      FILTER(STR(?yy) = "{year}")
-    }}
-    """
-
-    results = g.query(q)
-    out = []
-    for row in results:
-        out.append({
-            "recommended_crop": str(row["crop"]).split("#")[-1],
-            "justification": str(row["just"])
-        })
-    return jsonify(out)
+@app.route("/api/crops/legumes", methods=["GET"])
+def api_legume_crops():
+    crops = get_legume_crops()
+    return jsonify({"legume_crops": crops})
 
 
-############################
-# Download Reasoned Ontology
-############################
-@app.route("/api/download_inferred")
-def download_inferred():
-    if os.path.exists(INFERRED_OWL):
-        return send_file(INFERRED_OWL, as_attachment=True)
-    return ("No inferred OWL found. Save from Protégé first.", 404)
+@app.route("/api/crops/cereals", methods=["GET"])
+def api_cereal_crops():
+    crops = get_cereal_crops()
+    return jsonify({"cereal_crops": crops})
+
+
+@app.route("/api/recommendations/postpone-fertilizer", methods=["GET"])
+def api_postpone_fertilizer():
+    plots = get_plots_to_postpone_fertilizer()
+    return jsonify({
+        "recommendation": "PostponeFertilizerPlot",
+        "plots": plots,
+    })
+
+@app.route("/api/recommendations/high-pest-risk", methods=["GET"])
+def api_high_pest_risk():
+    plots = get_plots_high_pest_risk()
+    return jsonify({
+        "recommendation": "HighPestRiskPlot",
+        "plots": plots,
+    })
+
+@app.route("/api/recommendations/next-crop", methods=["GET"])
+def api_next_crop():
+    recs = get_next_crop_recommendations()
+    return jsonify({
+        "recommendation": "NextCropRotation",
+        "items": recs,
+    })
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5001)
+    # Run in dev mode
+    app.run(debug=True)
