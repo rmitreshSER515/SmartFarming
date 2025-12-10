@@ -6,7 +6,7 @@ function App() {
   // Basic data
   const [plots, setPlots] = useState([]);
   const [selectedPlot, setSelectedPlot] = useState("");
-  const [selectedYear, setSelectedYear] = useState("2015"); // adjust if you prefer
+  const [selectedYear, setSelectedYear] = useState("2015");
   const [plotSummary, setPlotSummary] = useState(null);
 
   // Recommendations
@@ -15,7 +15,7 @@ function App() {
   const [highPestRiskPlots, setHighPestRiskPlots] = useState([]);
   const [nextCropRecs, setNextCropRecs] = useState([]);
 
-  // UI state
+  // UI
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -85,15 +85,15 @@ function App() {
       if (highPest && Array.isArray(highPest.plots)) {
         setHighPestRiskPlots(highPest.plots);
       }
-      if (nextCrop && Array.isArray(nextCrop.recommendations)) {
-        setNextCropRecs(nextCrop.recommendations);
+      if (nextCrop && Array.isArray(nextCrop.items)) {
+        setNextCropRecs(nextCrop.items);
       }
 
       setLoading(false);
     }
 
     init();
-  }, []); // run once
+  }, []);
 
   // ========== load plot/year summary when selection changes ==========
 
@@ -180,9 +180,9 @@ function App() {
       </header>
 
       <main className="layout">
-        {/* Left column: selection + plot summary */}
+        {}
         <section className="panel">
-          <h2>1. Plot &amp; Year View</h2>
+          <h2>Plot &amp; Year View</h2>
           <div className="selector-row">
             <div className="field">
               <label>Plot</label>
@@ -224,9 +224,7 @@ function App() {
                 <span className="tag">
                   Crop: {plotSummary.crop_name || "N/A"}
                 </span>
-                <span className="tag">
-                  Treatment: {plotSummary.treatment || "N/A"}
-                </span>
+               {}
               </div>
 
               <div className="grid-2">
@@ -244,7 +242,7 @@ function App() {
                     <li>pH: {plotSummary.soil.pH ?? "N/A"}</li>
                     <li>P: {plotSummary.soil.P_mg_per_kg ?? "N/A"} mg/kg</li>
                     <li>K: {plotSummary.soil.K_mg_per_kg ?? "N/A"} mg/kg</li>
-                    <li>OM: {plotSummary.soil.OM_pct ?? "N/A"} %</li>
+                    {}
                   </ul>
                 </div>
               </div>
@@ -271,11 +269,7 @@ function App() {
                   label="Needs fertilizer"
                   color="danger"
                 />
-                <RecommendationBadge
-                  active={isInPostponeFert(plotSummary.plot_id)}
-                  label="Postpone fertilizer"
-                  color="warning"
-                />
+                {}
                 <RecommendationBadge
                   active={isInHighPest(plotSummary.plot_id)}
                   label="High pest risk"
@@ -301,137 +295,140 @@ function App() {
           )}
         </section>
 
-        {/* Right column: 4 recommendation panels */}
-        <section className="panel">
-          <h2>2. Recommendations Overview</h2>
+        {}
+        {false && (
+          <section className="panel">
+            <h2>2. Recommendations Overview</h2>
 
-          <div className="card-grid">
-            {/* Needs fertilizer */}
-            <div className="card">
-              <h3>Needs Fertilizer</h3>
-              <p className="card-desc">
-                Plots identified as nutrient-limited by low yield or low soil N/P.
-              </p>
-              {needsFertPlots.length === 0 ? (
-                <p className="info">No plots currently flagged.</p>
-              ) : (
-                <ul className="pill-list">
-                  {needsFertPlots.map((pid) => (
-                    <li
-                      key={pid}
-                      className={
-                        "pill" + (pid === selectedPlot ? " pill-active" : "")
-                      }
-                    >
-                      {pid}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Postpone fertilizer */}
-            <div className="card">
-              <h3>Postpone Fertilizer</h3>
-              <p className="card-desc">
-                Plots with adequate soil P and very high forecast rainfall.
-              </p>
-              {postponeFertPlots.length === 0 ? (
-                <p className="info">No plots currently flagged.</p>
-              ) : (
-                <ul className="pill-list">
-                  {postponeFertPlots.map((row, idx) => {
-                    const pid =
-                      typeof row === "string" ? row : row.plot_id || `#${idx}`;
-                    return (
+            <div className="card-grid">
+              {/* Needs fertilizer */}
+              <div className="card">
+                <h3>Needs Fertilizer</h3>
+                <p className="card-desc">
+                  Plots identified as nutrient-limited by low yield or low soil
+                  N/P.
+                </p>
+                {needsFertPlots.length === 0 ? (
+                  <p className="info">No plots currently flagged.</p>
+                ) : (
+                  <ul className="pill-list">
+                    {needsFertPlots.map((pid) => (
                       <li
-                        key={pid + idx}
+                        key={pid}
                         className={
                           "pill" + (pid === selectedPlot ? " pill-active" : "")
                         }
                       >
                         {pid}
                       </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-            {/* High pest risk */}
-            <div className="card">
-              <h3>High Pest Risk</h3>
-              <p className="card-desc">
-                Plots where weather / yield patterns indicate elevated pest
-                pressure.
-              </p>
-              {highPestRiskPlots.length === 0 ? (
-                <p className="info">No plots currently flagged.</p>
-              ) : (
-                <ul className="pill-list">
-                  {highPestRiskPlots.map((row, idx) => {
-                    const pid =
-                      typeof row === "string" ? row : row.plot_id || `#${idx}`;
-                    return (
-                      <li
-                        key={pid + idx}
-                        className={
-                          "pill" + (pid === selectedPlot ? " pill-active" : "")
-                        }
-                      >
-                        {pid}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+              {/* Postpone fertilizer */}
+              <div className="card">
+                <h3>Postpone Fertilizer</h3>
+                <p className="card-desc">
+                  Plots with adequate soil P and very high forecast rainfall.
+                </p>
+                {postponeFertPlots.length === 0 ? (
+                  <p className="info">No plots currently flagged.</p>
+                ) : (
+                  <ul className="pill-list">
+                    {postponeFertPlots.map((row, idx) => {
+                      const pid =
+                        typeof row === "string" ? row : row.plot_id || `#${idx}`;
+                      return (
+                        <li
+                          key={pid + idx}
+                          className={
+                            "pill" + (pid === selectedPlot ? " pill-active" : "")
+                          }
+                        >
+                          {pid}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
 
-            {/* Next crop rotation */}
-            <div className="card">
-              <h3>Next Crop (Rotation)</h3>
-              <p className="card-desc">
-                Suggested legume ↔ cereal rotation per plot and year.
-              </p>
-              {nextCropRecs.length === 0 ? (
-                <p className="info">No rotation suggestions found.</p>
-              ) : (
-                <div className="table-wrapper">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Plot</th>
-                        <th>Year</th>
-                        <th>Current crop</th>
-                        <th>Next crop</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {nextCropRecs.slice(0, 20).map((r, idx) => (
-                        <tr key={`${r.plot_id}-${r.year}-${idx}`}>
-                          <td>{r.plot_id}</td>
-                          <td>{r.year}</td>
-                          <td>{r.current_crop}</td>
-                          <td>
-                            {r.recommended_next_crop}{" "}
-                            <span className="tag tag-soft">
-                              {r.recommended_next_crop_class}
-                            </span>
-                          </td>
+              {/* High pest risk */}
+              <div className="card">
+                <h3>High Pest Risk</h3>
+                <p className="card-desc">
+                  Plots where weather / yield patterns indicate elevated pest
+                  pressure.
+                </p>
+                {highPestRiskPlots.length === 0 ? (
+                  <p className="info">No plots currently flagged.</p>
+                ) : (
+                  <ul className="pill-list">
+                    {highPestRiskPlots.map((row, idx) => {
+                      const pid =
+                        typeof row === "string" ? row : row.plot_id || `#${idx}`;
+                      return (
+                        <li
+                          key={pid + idx}
+                          className={
+                            "pill" + (pid === selectedPlot ? " pill-active" : "")
+                          }
+                        >
+                          {pid}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+
+              {/* Next crop rotation */}
+              <div className="card">
+                <h3>Next Crop (Rotation)</h3>
+                <p className="card-desc">
+                  Suggested legume ↔ cereal rotation per plot and year.
+                </p>
+                {nextCropRecs.length === 0 ? (
+                  <p className="info">No rotation suggestions found.</p>
+                ) : (
+                  <div className="table-wrapper">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Plot</th>
+                          <th>Year</th>
+                          <th>Current crop</th>
+                          <th>Next crop</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {nextCropRecs.length > 20 && (
-                    <p className="info">
-                      Showing first 20 of {nextCropRecs.length} rows.
-                    </p>
-                  )}
-                </div>
-              )}
+                      </thead>
+                      <tbody>
+                        {nextCropRecs.slice(0, 20).map((r, idx) => (
+                          <tr key={`${r.plot_id}-${r.year}-${idx}`}>
+                            <td>{r.plot_id}</td>
+                            <td>{r.year}</td>
+                            <td>{r.current_crop}</td>
+                            <td>
+                              {r.recommended_next_crop}{" "}
+                              <span className="tag tag-soft">
+                                {r.recommended_next_crop_class}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {nextCropRecs.length > 20 && (
+                      <p className="info">
+                        Showing first 20 of {nextCropRecs.length} rows.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
     </div>
   );

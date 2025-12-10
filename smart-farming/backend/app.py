@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from flask_cors import CORS  # if you call from a separate frontend
+from flask_cors import CORS
 from scripts.query_service import (
     list_plots,
     get_plot_year_summary,
@@ -12,7 +12,7 @@ from scripts.query_service import (
 )
 
 app = Flask(__name__)
-CORS(app)  # optional but handy during dev
+CORS(app)
 
 
 @app.route("/api/plots", methods=["GET"])
@@ -75,5 +75,4 @@ def api_next_crop():
 
 
 if __name__ == "__main__":
-    # Run in dev mode
     app.run(debug=True)

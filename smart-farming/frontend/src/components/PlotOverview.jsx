@@ -152,7 +152,7 @@ function PlotOverview() {
                 <dd>{summary.soil?.P_mg_per_kg ?? "–"}</dd>
                 <dt>N (mg/kg)</dt>
                 <dd>
-                  {/* N not in summary dict, just leave out or set "–" */}
+                  {}
                   –
                 </dd>
                 <dt>K (mg/kg)</dt>

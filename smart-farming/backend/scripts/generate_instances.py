@@ -2,13 +2,6 @@
 """
 Generate instances (TTL) from the smart-farming OWL schema and kbs_2024.csv.
 
-Directory layout (relative to this file):
-- ../ontology/smart-farming-backup.owl  (input ontology)
-- ../data/kbs_2024.csv                  (input data)
-- ../ontology/instances.ttl             (output with instances)
-
-Run from the project root or from inside venv, e.g.:
-    (venv) python scripts/generate_instances.py
 """
 
 import csv
@@ -23,11 +16,10 @@ from rdflib.namespace import RDF, RDFS, XSD
 # Paths & config
 # -------------------------------------------------------------------
 
-# this file: backend/scripts/generate_instances.py
 SCRIPTS_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPTS_DIR.parent  # ../backend
 
-OWL_PATH = PROJECT_ROOT / "ontology" / "smart-farming-backup.owl"
+OWL_PATH = PROJECT_ROOT / "ontology" / "smart-farming.owl"
 CSV_PATH = PROJECT_ROOT / "data" / "kbs_2024.csv"
 OUTPUT_TTL = PROJECT_ROOT / "ontology" / "instances.ttl"
 
@@ -144,10 +136,8 @@ def get_treatment(treatment_code: str) -> URIRef:
 # -------------------------------------------------------------------
 
 with CSV_PATH.open(newline="", encoding="utf-8") as f:
-    # If your file is tab-separated, change delimiter to "\t"
     reader = csv.DictReader(f)  # default delimiter=","
     for idx, row in enumerate(reader, start=1):
-        # --- basic fields ---
         year = (row.get("Year") or "").strip()
         plot_id = (row.get("PlotID") or "").strip()
         treatment_code = (row.get("Treatment") or "").strip()
@@ -155,11 +145,9 @@ with CSV_PATH.open(newline="", encoding="utf-8") as f:
         crop_name = (row.get("Crop") or "").strip()
 
         if not year or not plot_id:
-            # skip malformed lines
             print(f"Skipping row {idx}: missing Year or PlotID")
             continue
 
-        # Shared entities
         plot_uri = get_plot(plot_id)
         crop_uri = get_crop(crop_name) if crop_name else None
         treatment_uri = get_treatment(treatment_code) if treatment_code else None
@@ -259,9 +247,6 @@ with CSV_PATH.open(newline="", encoding="utf-8") as f:
         val = to_float(row.get("AvgTmin_C"))
         if val is not None:
             g.add((ws_uri, SF.avgTmin_C, Literal(val, datatype=XSD.float)))
-
-        # Optional: progress logging
-        # print(f"Processed row {idx}: {year} {plot_id} {replicate}")
 
 # -------------------------------------------------------------------
 # Serialize
