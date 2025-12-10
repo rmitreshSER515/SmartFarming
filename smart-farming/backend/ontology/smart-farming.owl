@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns="http://example.org/smart-farming#"
      xml:base="http://example.org/smart-farming"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:schema="https://schema.org/"   
+     xmlns:wd="http://www.wikidata.org/entity/"  
+     xmlns:wdt="http://www.wikidata.org/prop/direct/"   
+     xmlns:owl="http://www.w3.org/2002/07/owl#" 
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -10,8 +13,11 @@
      xmlns:swrl="http://www.w3.org/2003/11/swrl#"
      xmlns:swrla="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#"
      xmlns:swrlb="http://www.w3.org/2003/11/swrlb#">
+     
     <owl:Ontology rdf:about="http://example.org/smart-farming">
         <rdfs:label>Smart Farming – Crop Rotation, Fertilizer, Pest Risk Ontology</rdfs:label>
+        <owl:imports rdf:resource="https://schema.org/version/latest/schemaorg-current-https.ttl"/>
+
     </owl:Ontology>
     
 
@@ -80,6 +86,7 @@
         <rdfs:domain rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
         <rdfs:range rdf:resource="http://example.org/smart-farming#Plot"/>
         <rdfs:range rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
+        <rdfs:subPropertyOf rdf:resource="https://schema.org/observationAbout"/>
         <rdfs:comment>Plot to which the record refers.</rdfs:comment>
         <rdfs:label>aboutPlot</rdfs:label>
     </owl:ObjectProperty>
@@ -167,6 +174,7 @@
         <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
         <rdfs:domain rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
         <rdfs:range rdf:resource="http://www.w3.org/ns/sosa/ObservableProperty"/>
+        <rdfs:subPropertyOf rdf:resource="https://schema.org/variableMeasured"/>
         <rdfs:comment>Observable property measured in this record.</rdfs:comment>
         <rdfs:label>observesProperty</rdfs:label>
     </owl:ObjectProperty>
@@ -450,6 +458,7 @@
         <rdfs:domain rdf:resource="http://example.org/smart-farming#Record"/>
         <rdfs:domain rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:subPropertyOf rdf:resource="https://schema.org/observationDate"/>
         <rdfs:comment>Calendar year of the record.</rdfs:comment>
         <rdfs:label>hasYear</rdfs:label>
     </owl:DatatypeProperty>
@@ -604,8 +613,10 @@
 
     <owl:Class rdf:about="http://example.org/smart-farming#CerealCrop">
         <rdfs:subClassOf rdf:resource="http://example.org/smart-farming#Crop"/>
+        <rdfs:subClassOf rdf:resource="https://schema.org/Observation"/>
         <rdfs:comment>Cereal crops such as corn, wheat, barley.</rdfs:comment>
         <rdfs:label>CerealCrop</rdfs:label>
+
     </owl:Class>
     
     <!-- http://example.org/smart-farming#PostponeFertilizerPlot -->
@@ -654,6 +665,7 @@
     <!-- http://example.org/smart-farming#FertilizerApplication -->
 
     <owl:Class rdf:about="http://example.org/smart-farming#FertilizerApplication">
+        <rdfs:subClassOf rdf:resource="https://schema.org/Action"/>
         <rdfs:comment>An event where fertilizer is applied to a plot.</rdfs:comment>
         <rdfs:label>FertilizerApplication</rdfs:label>
     </owl:Class>
@@ -663,6 +675,7 @@
     <!-- http://example.org/smart-farming#FertilizerProduct -->
 
     <owl:Class rdf:about="http://example.org/smart-farming#FertilizerProduct">
+        <rdfs:subClassOf rdf:resource="https://schema.org/Product"/>
         <rdfs:comment>A fertilizer product or formulation.</rdfs:comment>
         <rdfs:label>FertilizerProduct</rdfs:label>
     </owl:Class>
@@ -739,6 +752,7 @@
 
     <owl:Class rdf:about="http://example.org/smart-farming#Plot">
         <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
+        <rdfs:subClassOf rdf:resource="https://schema.org/Place"/>
         <rdfs:comment>An agricultural plot or field where crops are cultivated.</rdfs:comment>
         <rdfs:label>Plot</rdfs:label>
     </owl:Class>
@@ -759,6 +773,7 @@
     <!-- http://example.org/smart-farming#Recommendation -->
 
     <owl:Class rdf:about="http://example.org/smart-farming#Recommendation">
+        <rdfs:subClassOf rdf:resource="https://schema.org/Recommendation"/>
         <rdfs:comment>Generic recommendation produced by the smart farming system.</rdfs:comment>
         <rdfs:label>Recommendation</rdfs:label>
     </owl:Class>
@@ -915,6 +930,7 @@
     <owl:NamedIndividual rdf:about="http://example.org/smart-farming#Glycine_max_L.">
         <rdf:type rdf:resource="http://example.org/smart-farming#Crop"/>
         <hasCropName>Glycine max L.</hasCropName>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q11006"/>
     </owl:NamedIndividual>
     
 
@@ -7070,6 +7086,7 @@
     <owl:NamedIndividual rdf:about="http://example.org/smart-farming#Triticum_aestivum_L.">
         <rdf:type rdf:resource="http://example.org/smart-farming#Crop"/>
         <hasCropName>Triticum aestivum L.</hasCropName>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q161098"/>
     </owl:NamedIndividual>
     
 
@@ -16487,6 +16504,7 @@
     <owl:NamedIndividual rdf:about="http://example.org/smart-farming#Zea_mays_L.">
         <rdf:type rdf:resource="http://example.org/smart-farming#Crop"/>
         <hasCropName>Zea mays L.</hasCropName>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q11575"/>
     </owl:NamedIndividual>
     
 
