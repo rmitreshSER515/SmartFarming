@@ -95,11 +95,8 @@ def get_plot(plot_id: str) -> URIRef:
     """Return (and create if needed) a Plot individual for PlotID."""
     if plot_id in plots:
         return plots[plot_id]
-
-    # PlotID like "T4_R4" is already a valid fragment, so we can use it as-is
     uri = SF[plot_id]
     g.add((uri, RDF.type, SF.Plot))
-    # if hasPlotID exists in ontology, this will align nicely
     g.add((uri, SF.hasPlotID, Literal(plot_id, datatype=XSD.string)))
     plots[plot_id] = uri
     return uri

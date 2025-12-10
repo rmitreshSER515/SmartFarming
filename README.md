@@ -12,9 +12,9 @@ This project loads crop yield, weather, pest, and field data; applies reasoning 
 
 ---
 
-# 🌱 What This Project Does
+# What This Project Does
 
-### ✔ Builds a Smart Farming Ontology  
+### Builds a Smart Farming Ontology  
 Defines classes and properties for:
 - Plots
 - Crops
@@ -23,19 +23,19 @@ Defines classes and properties for:
 - Pest Events
 - Recommendations
 
-### ✔ Applies SWRL Rules  
+### Applies SWRL Rules  
 Rules compute:
 - Fertilizer recommendations based on weather  
 - Crop rotation suggestions  
 - Pest risk
 
-### ✔ Generates a Fully Inferred TTL  
+### Generates a Fully Inferred TTL  
 This inferred knowledge graph contains:
 - New recommendation individuals  
 - Linked plots, years, crops  
 - Justification text for each recommendation  
 
-### ✔ Provides Flask API Endpoints  
+### Provides Flask API Endpoints  
 These let you query:
 - Available plots / years  
 - Raw yield records  
@@ -47,23 +47,30 @@ These let you query:
 # How to Run the Project
 
 ## 1. Install Python Environment
-
+```bash
 cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
 
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
 
 ## 2. Navigate to the Frontend Folder
-
+```bash
 cd frontend
+
 npm install
+
 npm start
+
 The frontend communicates with the backend API running at:
 
 http://localhost:5001
+```
 
-## 3. API Usage Guide
+## 3. API Usage Guide - These are the set of API's we have used for implementation
 1. GET /api/plots
 2. GET /api/plots/<plot_id>/year/<int:year>
 3. GET /api/recommendations/needs-fertilizer
